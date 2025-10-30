@@ -2,12 +2,18 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
+from django.contrib.auth.models import Group
 
 
 class UserSerializer(serializers.ModelSerializer):
+    groups = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ["id", "username", "email", "is_employee", "is_jobseeker", "is_admin", "date_joined"]
+        fields = ["id", "username", "email", "is_employee", "is_jobseeker", "is_admin", "date_joined", "groups"]
+
+    def get_groups(self, obj):
+        return [group.name for group in obj.groups.all()]
 
 
 class RegisterSerializer(serializers.ModelSerializer):
