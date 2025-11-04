@@ -24,22 +24,6 @@ export default function EmployeesPage() {
   const pageSize = 10; // items per page
   const [keypis, setKpis] = useState(null);
 
-  // Mock data for KPIs and employees
-  const kpis1 = [
-    { name: "Total Employees", value: 150 },
-    { name: "New Hires (Last 30 Days)", value: 5 },
-    { name: "Average Tenure (Years)", value: 3.5 },
-    { name: "Open Positions", value: 10 },
-  ];
-  
-
-  const employees1 = [
-    { id: 1, name: "John Doe", position: "Software Engineer" },
-    { id: 2, name: "Jane Smith", position: "Project Manager" },
-    { id: 3, name: "Peter Jones", position: "UI/UX Designer" },
-    { id: 4, name: "Alice Brown", position: "QA Engineer" },
-  ];
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
@@ -54,6 +38,7 @@ export default function EmployeesPage() {
         const data = res.data;
         setEmployees(data.results || []);
         setTotalPages(Math.ceil(data.count / pageSize));
+        console.log(data);
       } catch (err) {
         console.error("Error fetching employees:", err);
       } finally {
@@ -82,7 +67,8 @@ export default function EmployeesPage() {
     { title: "Total Employees", value: keypis?.total_employees ?? "N/A" },
     { title: "Average Salary", value: `$${keypis?.average_salary}`  ?? "N/A"},
     { title: "Average Performance", value: keypis?.average_performance  ?? "N/A"},
-    {/* title: "On-time Attendance", value: `${keypis.on_time_rate}%` */},
+    { title: "Active Employees", value: keypis?.active_employees  ?? "N/A"},
+    /*{ title: "On-time Attendance", value: `${keypis.on_time_rate}%` },*/
   ];
   
     const handlePageChange = (event, value) => {
@@ -109,22 +95,6 @@ export default function EmployeesPage() {
         <Typography variant="h4" component="h1" gutterBottom color="primary">
           Employees Overview
         </Typography>
-
-        {/* KPIs Section */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {kpis1.map((kpi, index) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
-              <Paper sx={{ p: 2, display: "flex", flexDirection: "column", height: 120, justifyContent: "space-between" }}>
-                <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                  {kpi.name}
-                </Typography>
-                <Typography component="p" variant="h4">
-                  {kpi.value}
-                </Typography>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
 
         {/* KPIs Section */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -162,6 +132,8 @@ export default function EmployeesPage() {
               <TableCell><strong>Leaving Date</strong></TableCell>
               <TableCell><strong>Is Blocked</strong></TableCell>
               <TableCell><strong>Reporting Manager</strong></TableCell>
+              <TableCell><strong>KPIs</strong></TableCell>
+              <TableCell><strong>Tenure</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -178,11 +150,13 @@ export default function EmployeesPage() {
                   <TableCell>{emp.dataofleaving}</TableCell>
                   <TableCell>{emp.is_blocked ? "Yes" : "No"}</TableCell>
                   <TableCell>{emp.manager_name}</TableCell>
+                  <TableCell>{emp.kpi_score}</TableCell>
+                  <TableCell>{emp.tenure_days}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={8} align="center">
                   No employees found.
                 </TableCell>
               </TableRow>

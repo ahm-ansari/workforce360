@@ -11,6 +11,8 @@ class KPISummaryView(APIView):
 
     def get(self, request):
         total_employees = Employee.objects.count()
+        active_employees = Employee.objects.filter(is_active=True).count()
+        inactive_employees = Employee.objects.filter(is_active=False).count()
         avg_salary = Employee_Payroll.objects.aggregate(avg=models.Avg("salary"))["avg"] or 0
         avg_performance = Employee.objects.aggregate(avg=models.Avg("performance_score"))["avg"] or 0
         # on_time_rate = Employee_Attendance.objects.filter(avg=models.Avg("in_time")).count() / Employee_Attendance.objects.count() * 100
@@ -19,6 +21,8 @@ class KPISummaryView(APIView):
             "total_employees": total_employees,
             "average_salary": round(avg_salary, 2),
             "average_performance": round(avg_performance, 2),
+            "active_employees": active_employees,
+            "inactive_employees": inactive_employees,
             # "on_time_rate": round(on_time_rate, 1),
         }
         return Response(data)

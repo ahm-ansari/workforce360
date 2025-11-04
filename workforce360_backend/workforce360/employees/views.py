@@ -50,25 +50,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             full_name=Concat("first_name", Value(" "), "last_name")
         ).values("full_name")[:1]
 
-
         # Annotate manager name & prefetch related person
         queryset = (
             queryset.select_related("person", "reporting_manager")
             .annotate(
                 manager_name=Subquery(manager_name_subquery, output_field=CharField())
-            ).values(
-                'person__first_name', 
-                'person__last_name', 
-                'person__date_of_birth', 
-                'person__gender', 
-                'emp_code', 
-                'status', 
-                'dataofjoining', 
-                'dataofleaving', 
-                'is_blocked', 
-                'reporting_manager_id',
-                'manager_name' # This annotated field can now be used
-                ,'performance_score',  'kpis','tenure_days'
             )
             .filter(is_active=True)
             .order_by("id")

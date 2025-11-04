@@ -19,15 +19,15 @@ class Employee(models.Model):
     performance_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     
     def __str__(self):
-        return self.id
+        return f"{self.person.first_name} {self.person.last_name}"
     
     @property
     def tenure_days(self):
         """Number of days the employee has been in the company."""
-        end_date = self.date_of_leaving or timezone.now().date()
-        if not self.date_of_joining:
+        end_date = self.dataofleaving or timezone.now().date()
+        if not self.dataofjoining:
             return 0
-        return (end_date - self.date_of_joining).days
+        return (end_date - self.dataofjoining).days
     
 class EmployeeKPI(models.Model):
     employee = models.OneToOneField(Employee, on_delete=models.CASCADE, related_name='kpis')

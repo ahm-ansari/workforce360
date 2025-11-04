@@ -2,8 +2,7 @@
 from rest_framework import serializers
 from .models import Employee, Employee_Payroll, Employee_Attendance, Employee_Leave, EmployeeDemoGraphics, EmployeeKPI
 from person.models import Person, Phone, Email, Post_Address, Demographics, Education, Experience, Skills, Certificates, Languages, Interests, Hobbies, Achievements, Awards
-
-
+from decimal import Decimal
 
 class PersonSerializer(serializers.Serializer):
     class Meta:
@@ -86,28 +85,35 @@ class EmployeeKPISerializer(serializers.ModelSerializer):
         return obj.calculate_overall_score()
     
 
-class EmployeeSerializer(serializers.Serializer):
+class EmployeeSerializer(serializers.ModelSerializer):
     # Change 'source' to match the actual key names in the 'values()' dictionary output
-    first_name = serializers.CharField(source='person__first_name')
-    last_name = serializers.CharField(source='person__last_name')
-    date_of_birth = serializers.DateField(source='person__date_of_birth')
-    gender = serializers.CharField(source='person__gender')
-    
+    first_name = serializers.CharField(source='person.first_name')
+    last_name = serializers.CharField(source='person.last_name')
+    date_of_birth = serializers.DateField(source='person.date_of_birth')
+    gender = serializers.CharField(source='person.gender')
+
     # These fields are direct attributes of the Employee model/dictionary
     emp_code = serializers.CharField()
     status = serializers.CharField()
     dataofjoining = serializers.DateField()
     dataofleaving = serializers.DateField(allow_null=True)
-    is_blocked = serializers.BooleanField()
     reporting_manager_id = serializers.IntegerField(allow_null=True)
-    performance_score = serializers.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    performance_score = serializers.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'))
     manager_name = serializers.CharField(allow_null=True) # The annotated field
     
-    kpis = EmployeeKPISerializer(read_only=True)
+    kpis = serializers.SerializerMethodField()
     tenure_days = serializers.SerializerMethodField()
 
     def get_tenure_days(self, obj):
         return obj.tenure_days
+    
+    def get_kpis(self, obj):
+        kpis = EmployeeKPI.objects.filter(employee=obj).values()
+        return kpis
+    
+    class Meta:
+        model = Employee
+        fields = ['id', 'first_name', 'last_name', 'date_of_birth', 'gender', 'emp_code', 'status', 'dataofjoining', 'dataofleaving', 'reporting_manager_id', 'performance_score', 'manager_name', 'kpis', 'tenure_days']
     
 class Employee_PayrollSerializer(serializers.ModelSerializer):
     class Meta:
