@@ -1,21 +1,39 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { useRouter } from "next/router";
-import { Box, Typography, Grid, Paper, List, ListItem, ListItemText, Divider } from "@mui/material";
+import { Box, Typography, Grid, Paper, List, ListItem, ListItemText, Divider, Pagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  CircularProgress,
+  Alert, } from "@mui/material";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
 export default function EmployeesPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 10; // items per page
+  const [keypis, setKpis] = useState(null);
 
   // Mock data for KPIs and employees
-  const kpis = [
+  const kpis1 = [
     { name: "Total Employees", value: 150 },
     { name: "New Hires (Last 30 Days)", value: 5 },
     { name: "Average Tenure (Years)", value: 3.5 },
     { name: "Open Positions", value: 10 },
   ];
+  
 
-  const employees = [
+  const employees1 = [
     { id: 1, name: "John Doe", position: "Software Engineer" },
     { id: 2, name: "Jane Smith", position: "Project Manager" },
     { id: 3, name: "Peter Jones", position: "UI/UX Designer" },
@@ -30,22 +48,91 @@ export default function EmployeesPage() {
     } else if (userData) {
       setUser(JSON.parse(userData));
     }
-  }, [router]);
+    const fetchEmployees = async (pageNumber = 1) => {
+      try {
+        const res = await axiosInstance.get(`/employees/?page=${pageNumber}&page_size=${pageSize}`);
+        const data = res.data;
+        setEmployees(data.results || []);
+        setTotalPages(Math.ceil(data.count / pageSize));
+      } catch (err) {
+        console.error("Error fetching employees:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployees(page);
+
+    const fetchKPIs = async () => {
+      try {
+        const res = await axiosInstance.get("/kpi/summary/");
+        setKpis(res.data);
+      } catch (err) {
+        console.error("Failed to fetch KPI data", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchKPIs();
+
+
+  }, [page]);
+
+  const kpiItems = [
+    { title: "Total Employees", value: keypis?.total_employees ?? "N/A" },
+    { title: "Average Salary", value: `$${keypis?.average_salary}`  ?? "N/A"},
+    { title: "Average Performance", value: keypis?.average_performance  ?? "N/A"},
+    {/* title: "On-time Attendance", value: `${keypis.on_time_rate}%` */},
+  ];
+  
+    const handlePageChange = (event, value) => {
+      setPage(value);
+    };
+
+  if (loading)
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
+      </Box>
+    );
+
+  if (error)
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
 
   return (
     <DashboardLayout>
-      <Box>
-        <Typography variant="h4" component="h1" gutterBottom>
+      <Box  sx={{ p: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom color="primary">
           Employees Overview
         </Typography>
 
         {/* KPIs Section */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {kpis.map((kpi, index) => (
+          {kpis1.map((kpi, index) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
               <Paper sx={{ p: 2, display: "flex", flexDirection: "column", height: 120, justifyContent: "space-between" }}>
                 <Typography component="h2" variant="h6" color="primary" gutterBottom>
                   {kpi.name}
+                </Typography>
+                <Typography component="p" variant="h4">
+                  {kpi.value}
+                </Typography>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* KPIs Section */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {kpiItems.map((kpi, index) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
+              <Paper sx={{ p: 2, display: "flex", flexDirection: "column", height: 120, justifyContent: "space-between" }}>
+                <Typography component="h2" variant="h6" color="primary" gutterBottom>
+                  {kpi.title}
                 </Typography>
                 <Typography component="p" variant="h4">
                   {kpi.value}
@@ -60,17 +147,60 @@ export default function EmployeesPage() {
           <Typography variant="h5" component="h2" gutterBottom>
             Employee List
           </Typography>
-          <List>
-            {employees.map((employee) => (
-              <div key={employee.id}>
-                <ListItem>
-                  <ListItemText primary={employee.name} secondary={employee.position} />
-                </ListItem>
-                <Divider />
-              </div>
-            ))}
-          </List>
         </Paper>
+      <TableContainer component={Paper} elevation={4}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><strong>ID</strong></TableCell>
+              <TableCell><strong>Name</strong></TableCell>
+              <TableCell><strong>DOB</strong></TableCell>
+              <TableCell><strong>Gender</strong></TableCell>
+              <TableCell><strong>Code</strong></TableCell>
+              <TableCell><strong>Status</strong></TableCell>
+              <TableCell><strong>Joined Date</strong></TableCell>
+              <TableCell><strong>Leaving Date</strong></TableCell>
+              <TableCell><strong>Is Blocked</strong></TableCell>
+              <TableCell><strong>Reporting Manager</strong></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {employees.length > 0 ? (
+              employees.map((emp) => (
+                <TableRow key={emp.id} hover>
+                  <TableCell>{emp.id}</TableCell>
+                  <TableCell>{emp.first_name} {emp.last_name}</TableCell>
+                  <TableCell>{emp.date_of_birth}</TableCell>
+                  <TableCell>{emp.gender}</TableCell>
+                  <TableCell>{emp.emp_code}</TableCell>
+                  <TableCell>{emp.status}</TableCell>
+                  <TableCell>{emp.dataofjoining}</TableCell>
+                  <TableCell>{emp.dataofleaving}</TableCell>
+                  <TableCell>{emp.is_blocked ? "Yes" : "No"}</TableCell>
+                  <TableCell>{emp.manager_name}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No employees found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Box display="flex" justifyContent="center" mt={3}>
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={handlePageChange}
+          color="primary"
+          variant="outlined"
+          shape="rounded"
+        />
+      </Box>
+      
       </Box>
     </DashboardLayout>
   );

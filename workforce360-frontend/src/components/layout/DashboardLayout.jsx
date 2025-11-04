@@ -84,9 +84,7 @@ export default function DashboardLayout({ children }) {
         <Sidebar />
       </Drawer>
         <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: 'background.default' }}>
-            // --- UPDATED: More padding and new bg color --- 
-            // Adjust top padding with app bar height
-                          <Toolbar /> {/* Spacer */}
+          <Toolbar /> {/* Spacer */}
           {children}
         </Box>
       </Box>

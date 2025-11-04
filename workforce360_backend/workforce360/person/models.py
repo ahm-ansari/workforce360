@@ -9,6 +9,12 @@ class Person(models.Model):
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
     postfix = models.CharField(max_length=200)
+    date_of_birth = models.DateField()
+    gender = models.CharField(max_length=10, choices=[
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other')
+    ])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -49,7 +55,7 @@ class Post_Address(models.Model):
     def __str__(self):
         return self.id
 
-class demographics(models.Model):
+class Demographics(models.Model):
     id = models.AutoField(primary_key=True)
     demo_name = models.CharField(max_length=200)
     demo_value = models.CharField(max_length=200)
@@ -61,7 +67,7 @@ class demographics(models.Model):
     def __str__(self):
         return self.id
 
-class education(models.Model):
+class Education(models.Model):
     id = models.AutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     degree = models.CharField(max_length=200)
@@ -73,7 +79,7 @@ class education(models.Model):
     def __str__(self):
         return self.id
 
-class experience(models.Model):
+class Experience(models.Model):
     id = models.AutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     company = models.CharField(max_length=200)
@@ -87,7 +93,7 @@ class experience(models.Model):
     def __str__(self):
         return self.id
 
-class skills(models.Model):
+class Skills(models.Model):
     id = models.AutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     skill_name = models.CharField(max_length=200)
@@ -99,7 +105,7 @@ class skills(models.Model):
     def __str__(self):
         return self.id
 
-class certificates(models.Model):
+class Certificates(models.Model):
     id = models.AutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     certificate_name = models.CharField(max_length=200)
@@ -112,7 +118,7 @@ class certificates(models.Model):
     def __str__(self):
         return self.id
 
-class languages(models.Model):
+class Languages(models.Model):
     id = models.AutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     language_name = models.CharField(max_length=200)
@@ -124,7 +130,7 @@ class languages(models.Model):
     def __str__(self):
         return self.id
 
-class interests(models.Model):
+class Interests(models.Model):
     id = models.AutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     interest_name = models.CharField(max_length=200)
@@ -135,7 +141,7 @@ class interests(models.Model):
     def __str__(self):
         return self.id
 
-class hobbies(models.Model):
+class Hobbies(models.Model):
     id = models.AutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     hobby_name = models.CharField(max_length=200)
@@ -144,7 +150,7 @@ class hobbies(models.Model):
     def __str__(self):
         return self.id
 
-class achievements(models.Model):
+class Achievements(models.Model):
     id = models.AutoField(primary_key=True) 
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     achievement_name = models.CharField(max_length=200)
@@ -155,7 +161,7 @@ class achievements(models.Model):
     def __str__(self):
         return self.id
 
-class awards(models.Model):
+class Awards(models.Model):
     id = models.AutoField(primary_key=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     award_name = models.CharField(max_length=200)
