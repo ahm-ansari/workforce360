@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "is_employee", "is_jobseeker", "is_admin", "date_joined", "groups"]
+        fields = ["id","first_name", "last_name", "username", "email", "is_employee", "is_jobseeker", "is_admin", "date_joined", "groups"]
 
     def get_groups(self, obj):
         return [group.name for group in obj.groups.all()]

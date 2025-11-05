@@ -109,6 +109,5 @@ class Employee_Leave(models.Model):
 
     def __str__(self):
         return f"Employee Leave {self.employee.person.first_name} {self.employee.person.last_name} - {self.leave_type}"
-    
 
     

@@ -5,7 +5,8 @@ import { useRouter } from "next/router";
 import { Box, Typography, Grid, Paper, Button, Card } from "@mui/material";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import CardContent from '@mui/material/CardContent';
-import { CardActionArea } from '@mui/material';
+import { CardActionArea, CircularProgress, Alert} from '@mui/material';
+import axiosInstance from "../utils/axiosInstance";
 
 import { usePathname } from 'next/navigation'; // Import to track active page
 
@@ -42,6 +43,9 @@ export default function DashboardPage() {
   const pathname = usePathname(); // Get the current URL path
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [keypis, setKpis] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -51,6 +55,19 @@ export default function DashboardPage() {
     } else if (userData) {
       setUser(JSON.parse(userData));
     }
+
+    const fetchKPIs = async () => {
+      try {
+        const res = await axiosInstance.get("/kpi/summary/");
+        setKpis(res.data);
+      } catch (err) {
+        console.error("Failed to fetch KPI data", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchKPIs();
+
   }, [router]);
 
   const handleLogout = () => {
@@ -60,6 +77,19 @@ export default function DashboardPage() {
     router.push("/login");
   };
 
+  if (loading)
+      return (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <CircularProgress />
+        </Box>
+      );
+  
+    if (error)
+      return (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <Alert severity="error">{error}</Alert>
+        </Box>
+      );
 
   return (
     <DashboardLayout>
@@ -82,7 +112,7 @@ export default function DashboardPage() {
                 Employees
               </Typography>
               <Typography component="p" variant="h4">
-                150
+                {keypis?.active_employees  ?? "N/A"}
               </Typography>
             </Paper>
           </Grid>

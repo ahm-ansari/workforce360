@@ -83,3 +83,12 @@ class languages(models.Model):
 
     def __str__(self):
         return self.id
+    
+class position(models.Model):
+    id = models.AutoField(primary_key=True)
+    position_name = models.CharField(max_length=200)
+    role = models.CharField(max_length=200)
+    description = models.TextField(max_length=200)
+
+    def __str__(self):
+        return self.id

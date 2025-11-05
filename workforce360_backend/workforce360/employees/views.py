@@ -7,10 +7,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 
+from rest_framework import generics
+
 from .models import Employee
 from .serializers import EmployeeSerializer
 from person.models import Person
-from users.models import User
 
 
 class EmployeePagination(PageNumberPagination):
@@ -154,4 +155,16 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         employee.is_active = True
         employee.save()
         serializer = self.get_serializer(employee)
+        return Response(serializer.data)
+
+class EmployeeListAll(generics.ListAPIView):
+    queryset = Employee.objects.all().order_by('created_at')
+    serializer_class = EmployeeSerializer
+    # Explicitly set pagination_class to None to ensure no pagination is applied
+    pagination_class = None     
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

@@ -1,17 +1,29 @@
+
 import { useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 import axiosInstance from "../utils/axiosInstance";
 import { useRouter } from "next/router";
-import { Box, Typography, Grid, Paper, List, ListItem, ListItemText, Divider, Pagination,
+import {
+  Box, Typography, Grid, Paper, List, ListItem, ListItemText, Divider, Pagination,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  CircularProgress,
-  Alert, } from "@mui/material";
+  CircularProgress, Fab, Container,
+  Alert,
+} from "@mui/material";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import EditIcon from '@mui/icons-material/Edit';
+import Delete from '@mui/icons-material/Delete';
+import CustomChart from "@/components/charts/CustomChart";
+import { Card, CardContent } from "@mui/material";
+import { useMemo } from "react";
+import EmployeeJoinTrend from "@/components/employees/EmployeeJoinTrend";
+
+
+
 
 export default function EmployeesPage() {
   const router = useRouter();
@@ -23,6 +35,7 @@ export default function EmployeesPage() {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 10; // items per page
   const [keypis, setKpis] = useState(null);
+  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -38,7 +51,6 @@ export default function EmployeesPage() {
         const data = res.data;
         setEmployees(data.results || []);
         setTotalPages(Math.ceil(data.count / pageSize));
-        console.log(data);
       } catch (err) {
         console.error("Error fetching employees:", err);
       } finally {
@@ -65,15 +77,15 @@ export default function EmployeesPage() {
 
   const kpiItems = [
     { title: "Total Employees", value: keypis?.total_employees ?? "N/A" },
-    { title: "Average Salary", value: `$${keypis?.average_salary}`  ?? "N/A"},
-    { title: "Average Performance", value: keypis?.average_performance  ?? "N/A"},
-    { title: "Active Employees", value: keypis?.active_employees  ?? "N/A"},
+    { title: "Average Salary", value: `$${keypis?.average_salary}` ?? "N/A" },
+    { title: "Average Performance", value: keypis?.average_performance ?? "N/A" },
+    { title: "Active Employees", value: keypis?.active_employees ?? "N/A" },
     /*{ title: "On-time Attendance", value: `${keypis.on_time_rate}%` },*/
   ];
-  
-    const handlePageChange = (event, value) => {
-      setPage(value);
-    };
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   if (loading)
     return (
@@ -91,7 +103,7 @@ export default function EmployeesPage() {
 
   return (
     <DashboardLayout>
-      <Box  sx={{ p: 4 }}>
+        <Box sx={{ flexGrow: 1, p: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom color="primary">
           Employees Overview
         </Typography>
@@ -111,70 +123,80 @@ export default function EmployeesPage() {
             </Grid>
           ))}
         </Grid>
-
+        <EmployeeJoinTrend />
         {/* Employees List Section */}
         <Paper sx={{ p: 2 }}>
           <Typography variant="h5" component="h2" gutterBottom>
             Employee List
           </Typography>
         </Paper>
-      <TableContainer component={Paper} elevation={4}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell><strong>ID</strong></TableCell>
-              <TableCell><strong>Name</strong></TableCell>
-              <TableCell><strong>DOB</strong></TableCell>
-              <TableCell><strong>Gender</strong></TableCell>
-              <TableCell><strong>Code</strong></TableCell>
-              <TableCell><strong>Status</strong></TableCell>
-              <TableCell><strong>Joined Date</strong></TableCell>
-              <TableCell><strong>Leaving Date</strong></TableCell>
-              <TableCell><strong>Is Blocked</strong></TableCell>
-              <TableCell><strong>Reporting Manager</strong></TableCell>
-              <TableCell><strong>KPIs</strong></TableCell>
-              <TableCell><strong>Tenure</strong></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {employees.length > 0 ? (
-              employees.map((emp) => (
-                <TableRow key={emp.id} hover>
-                  <TableCell>{emp.id}</TableCell>
-                  <TableCell>{emp.first_name} {emp.last_name}</TableCell>
-                  <TableCell>{emp.date_of_birth}</TableCell>
-                  <TableCell>{emp.gender}</TableCell>
-                  <TableCell>{emp.emp_code}</TableCell>
-                  <TableCell>{emp.status}</TableCell>
-                  <TableCell>{emp.dataofjoining}</TableCell>
-                  <TableCell>{emp.dataofleaving}</TableCell>
-                  <TableCell>{emp.is_blocked ? "Yes" : "No"}</TableCell>
-                  <TableCell>{emp.manager_name}</TableCell>
-                  <TableCell>{emp.kpi_score}</TableCell>
-                  <TableCell>{emp.tenure_days}</TableCell>
-                </TableRow>
-              ))
-            ) : (
+        <TableContainer component={Paper} elevation={4}>
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={8} align="center">
-                  No employees found.
-                </TableCell>
+                <TableCell><strong>ID</strong></TableCell>
+                <TableCell><strong>Name</strong></TableCell>
+                <TableCell><strong>DOB</strong></TableCell>
+                <TableCell><strong>Gender</strong></TableCell>
+                <TableCell><strong>Code</strong></TableCell>
+                <TableCell><strong>Status</strong></TableCell>
+                <TableCell><strong>Joined Date</strong></TableCell>
+                <TableCell><strong>Leaving Date</strong></TableCell>
+                <TableCell><strong>Is Blocked</strong></TableCell>
+                <TableCell><strong>Reporting Manager</strong></TableCell>
+                <TableCell><strong>Score</strong></TableCell>
+                <TableCell><strong>Tenure</strong></TableCell>
+                <TableCell><strong>Action</strong></TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Box display="flex" justifyContent="center" mt={3}>
-        <Pagination
-          count={totalPages}
-          page={page}
-          onChange={handlePageChange}
-          color="primary"
-          variant="outlined"
-          shape="rounded"
-        />
-      </Box>
-      
+            </TableHead>
+            <TableBody>
+              {employees.length > 0 ? (
+                employees.map((emp) => (
+                  <TableRow key={emp.id} hover>
+                    <TableCell>{emp.id}</TableCell>
+                    <TableCell>{emp.first_name} {emp.last_name}</TableCell>
+                    <TableCell>{emp.date_of_birth}</TableCell>
+                    <TableCell>{emp.gender}</TableCell>
+                    <TableCell>{emp.emp_code}</TableCell>
+                    <TableCell>{emp.status}</TableCell>
+                    <TableCell>{emp.dataofjoining}</TableCell>
+                    <TableCell>{emp.dataofleaving}</TableCell>
+                    <TableCell>{emp.is_blocked ? "Yes" : "No"}</TableCell>
+                    <TableCell>{emp.manager_name}</TableCell>
+                    <TableCell>{emp.performance_score}</TableCell>
+                    <TableCell>{emp.tenure_days}</TableCell>
+                    <TableCell>
+                      <Box sx={{ '& > :not(style)': { m: 1 } }}>
+                        <Fab size="small" color="secondary" aria-label="edit">
+                          <EditIcon />
+                        </Fab>
+                        <Fab size="small" color="error" aria-label="delete">
+                          <Delete />
+                        </Fab>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} align="center">
+                    No employees found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Box display="flex" justifyContent="center" mt={3}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            variant="outlined"
+            shape="rounded"
+          />
+        </Box>
       </Box>
     </DashboardLayout>
   );
