@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('', include('employees.urls')),
     path("api/kpi/summary/", KPISummaryView.as_view(), name="kpi-summary"),
+    path('api/', include('recruitment.urls')),
 ]

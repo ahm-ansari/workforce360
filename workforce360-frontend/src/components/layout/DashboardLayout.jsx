@@ -2,24 +2,14 @@ import { Box } from "@mui/material";
 import Sidebar from "./Sidebar";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Roboto } from "next/font/google";
 import ThemeRegistry from "@/app/ThemeRegistry";
 import { usePathname } from 'next/navigation'; // Import to track active page
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
@@ -27,7 +17,6 @@ import Menu from '@mui/material/Menu';
 import Account from '@mui/icons-material/AccountCircle';
 import Dashboard from '@mui/icons-material/Dashboard';
 import Profile from '@mui/icons-material/Person';
-import SecurityIcon from '@mui/icons-material/Security';
 
 import LogoutIcon from '@mui/icons-material/Logout';
 import Link from 'next/link';
@@ -37,7 +26,7 @@ const drawerWidth = 282;
 
 const settings = [
   { name: 'Profile', path: '/profile', icon: Profile, type: 'link' },
-  { name: 'Account', path: '/account', icon: Account, type: 'link' },
+  { name: 'Account', path: '/user-account', icon: Account, type: 'link' },
   { name: 'Dashboard', path: '/dashboard', icon: Dashboard, type: 'link' },
   { name: 'Logout', path: '/', icon: LogoutIcon, type: 'action' },
 ];
@@ -93,7 +82,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <ThemeRegistry>
-      <Box className="flex">
+      <Box className="flex ">
         <AppBar
           position="fixed"
           sx={{
@@ -111,7 +100,7 @@ export default function DashboardLayout({ children }) {
               </Typography>
             </Toolbar>
             <Typography variant="h5" component="h1" noWrap>
-              Security Agency Management
+              Office Management APP
             </Typography>
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
@@ -146,7 +135,6 @@ export default function DashboardLayout({ children }) {
                     // Prevents default anchor styling from showing
                     style={{ textDecoration: 'none', color: 'inherit' }}
                   >
-
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {setting.icon && <setting.icon sx={{ mr: 1 }} />} {setting.name}
                       </Box>
@@ -175,7 +163,6 @@ export default function DashboardLayout({ children }) {
           <Sidebar />
         </Drawer>
         <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: 'background.default' }}>
-          <Toolbar /> {/* Spacer */}
           {children}
         </Box>
       </Box>

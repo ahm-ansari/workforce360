@@ -3,10 +3,10 @@ import { Roboto } from 'next/font/google';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Box, Typography, Grid, Paper, Button, Card } from "@mui/material";
-import DashboardLayout from "@/components/layout/DashboardLayout";
 import CardContent from '@mui/material/CardContent';
 import { CardActionArea, CircularProgress, Alert} from '@mui/material';
 import axiosInstance from "../utils/axiosInstance";
+import AdminLayout from '@/components/layout/AdminLayout';
 
 import { usePathname } from 'next/navigation'; // Import to track active page
 
@@ -29,7 +29,7 @@ function StatCard({ title, value, icon }) {
             {value}
           </Typography>
           <Typography sx={{ mb: 1.5 }} color="text.secondary">
-            {title}
+           {icon} {title}
           </Typography>
         </CardContent>
       </CardActionArea>
@@ -92,86 +92,27 @@ export default function DashboardPage() {
       );
 
   return (
-    <DashboardLayout>
-      <Box className="flex" >
-        <Typography variant="h4" gutterBottom>
-          Dashboard Overview
-        </Typography>
-      </Box>
-      <Box sx={{ flexGrow: 1, p: 2 , 
-          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', borderRadius: '8px', mb: 2, mt: 2}}>      
-        <Grid container sx={{
-           justifyContent: 'space-evenly', gap: 1
-
-        }}>  {/* Grid container from MUI styles  with full width and grid items are evenly distrubuted */}
-
-          {/* Example Cards */}
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 140}}>
-              <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                Employees
-              </Typography>
-              <Typography component="p" variant="h4">
-                {keypis?.active_employees  ?? "N/A"}
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 140 }}>
-              <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                Projects
-              </Typography>
-              <Typography component="p" variant="h4">
-                25
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 140}}>
-              <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                Clients
-              </Typography>
-              <Typography component="p" variant="h4">
-                50
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 140}}>
-              <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                Revenue
-              </Typography>
-              <Typography component="p" variant="h4">
-                $12,500
-              </Typography>
-            </Paper>
-          </Grid>
+    <AdminLayout title="Dashboard" user={user}>
+      <Typography variant="h5" gutterBottom>Overview</Typography>
+      <Grid container spacing={2}>  {/* Grid container from MUI styles  with full width and grid items are evenly distrubuted */}
+        {/* Example Cards */}
+        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+          <StatCard title="Total Employees" value={keypis?.total_employees ?? "N/A"} icon={<i className="fa fa-user"></i>} />
         </Grid>
-
-      </Box>
+        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+          <StatCard title="Active Employees" value={keypis?.active_employees ?? "N/A"} icon={<i className="fa fa-user"></i>} />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+          <StatCard title="Total Clients" value={keypis?.total_clients ?? "N/A"} icon={<i className="fa fa-user"></i>} />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+          <StatCard title="Total Projects" value={keypis?.total_projects ?? "N/A"} icon={<i className="fa fa-user"></i>} />
+        </Grid>
+      </Grid>
 
       <Box sx={{display: 'flex', flexDirection: 'row', flexGrow: 1, bgcolor: 'background.paper', p: 2 ,  
           boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', borderRadius: '8px', mb: 2, mt: 2}}>
 
-        {/* Grid container from MUI */}
-        <Grid container sx={{
-           justifyContent: 'space-evenly', gap: 1,  width: '30%', p: 2
-
-        }}>
-          {/* Grid items */}
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 5 }}>
-            <StatCard title="Active Guards" value="42" />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 5 }}>
-            <StatCard title="Total Incidents" value="500" />
-          </Grid> 
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 5}}>
-            <StatCard title="Open Incidents" value="3" />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 5 }}>
-            <StatCard title="Sites Patrolled" value="12" />
-          </Grid>
-        </Grid>
         <Grid container spacing={3} sx={{ width: '60%', p: 2 }} >
           {/* Main Content Area */}
           <Grid size={{ xs: 12, sm: 6, md: 4, lg: 5 }}>
@@ -212,6 +153,6 @@ export default function DashboardPage() {
           </Grid>
         </Grid>
       </Box>
-    </DashboardLayout >
+    </AdminLayout >
   );
 }

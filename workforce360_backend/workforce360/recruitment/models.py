@@ -6,8 +6,13 @@ import uuid
 from person.models import Person
 from employees.models import Employee
 
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 User = settings.AUTH_USER_MODEL
+
+def uuid_slug():
+    return str(uuid.uuid4())
 
 class Job_role(models.Model):
     id = models.AutoField(primary_key=True)
@@ -33,7 +38,7 @@ class RecruitmentPlan(models.Model):
     open_date = models.DateField()
     close_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='+')
+    created_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, related_name='+')
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -46,7 +51,7 @@ class JobOpening(models.Model):
     job_code = models.CharField(max_length=40, unique=True)
     title = models.CharField(max_length=150)
     location = models.CharField(max_length=100, blank=True)
-    hiring_manager = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    hiring_manager = models.ForeignKey(Employee, null=True, blank=True, on_delete=models.SET_NULL)
     description = models.TextField(blank=True)
     salary_min = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     salary_max = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -86,7 +91,7 @@ class JobApplication(models.Model):
 class Screening(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     application = models.ForeignKey(JobApplication, on_delete=models.CASCADE, related_name='screenings')
-    screener = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    screener = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     notes = models.TextField(blank=True)
     passed = models.BooleanField(default=False)
@@ -95,7 +100,7 @@ class Screening(models.Model):
 class InterviewFeedback(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     application = models.ForeignKey(JobApplication, on_delete=models.CASCADE, related_name='feedbacks')
-    interviewer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    interviewer = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     interview_type = models.CharField(max_length=50, choices=[('phone','Phone'),('onsite','Onsite'),('panel','Panel')], default='onsite')
     date = models.DateField(null=True, blank=True)
     score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -104,7 +109,7 @@ class InterviewFeedback(models.Model):
     decision_recommendation = models.CharField(max_length=30, choices=[('progress','Progress'), ('reject','Reject'), ('offer','Offer')], default='progress')
     created_at = models.DateTimeField(auto_now_add=True)
 
-class Employee(models.Model):
+class EmployeeRecruited(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     application = models.OneToOneField(JobApplication, on_delete=models.SET_NULL, null=True, blank=True)
     employee_code = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
@@ -123,7 +128,7 @@ class Document(models.Model):
     owner_id = models.UUIDField()  # generic link, you can use django-genericforeignkey if preferred
     doc_type = models.CharField(max_length=80)
     file = models.FileField(upload_to='documents/')
-    uploaded_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    uploaded_by = models.ForeignKey(Employee, null=True, on_delete=models.SET_NULL)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     metadata = models.JSONField(default=dict, blank=True)
 

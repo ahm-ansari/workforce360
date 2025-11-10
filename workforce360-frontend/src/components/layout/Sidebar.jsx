@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { List, ListItem, ListItemIcon, ListItemText, Typography, Box } from "@mui/material";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { List, ListItem, ListItemIcon, ListItemText, Typography, Box, Drawer, Toolbar } from "@mui/material";
 import {
   Apps, People, Business, Assignment, ReceiptLong, AccountBalanceWallet,
   Payments, Description, Inventory2, ManageAccounts, Assessment, Build, Settings
@@ -7,13 +9,15 @@ import {
 import Divider from '@mui/material/Divider';
 import ListItemButton from '@mui/material/ListItemButton';
 import LogoutIcon from '@mui/icons-material/Logout';
-import SecurityIcon from '@mui/icons-material/Security';
 
 
 import { usePathname } from 'next/navigation'; // Import to track active page
 
+
+const drawerWidth = 240;
+
 const menuItems = [
-  { text: "Applications", icon: <Apps />, path: "/applications" },
+  { text: "Applications", icon: <Apps />, path: "/jobs" },
   { text: "Employees", icon: <People />, path: "/employees" },
   { text: "Clients", icon: <Business />, path: "/clients" },
   { text: "Projects", icon: <Assignment />, path: "/projects" },
@@ -28,11 +32,13 @@ const menuItems = [
   { text: "Settings", icon: <Settings />, path: "/settings" },
 ];
 
+
 // --- NEW: Stylish Nav Item Styles ---
 const S_NAV_ITEM = {
   margin: '4px 12px', // Add horizontal margin
   padding: '8px 16px',
-  borderRadius: '8px', // Make it rounded
+  borderRadius: '8px', // Make it rounded 
+  textDecoration: 'none', 
   '&.Mui-selected': {
     // Style for the active item
     backgroundColor: '#e3f2fd', // A light blue background
@@ -49,34 +55,53 @@ const S_NAV_ITEM = {
 
 export default function Sidebar() {
   const pathname = usePathname(); // Get the current URL path
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+    if (!token) {
+      router.push("/login");
+    } else if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user");
+    router.push("/login");
+  };
   return (
-    <Box sx={{ width: 280, height: '100vh', bgcolor: 'background.paper', borderRight: '1px solid rgba(0, 0, 0, 0.12)' }}>
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(0, 0, 0, 0.12)' }}>
-        <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-          <SecurityIcon className="mr-2" />WorkForce360
-        </Typography>
-      </Box>
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: drawerWidth,
+        [`& .MuiDrawer-paper`]: {
+          width: drawerWidth,
+          boxSizing: 'border-box',
+          backgroundColor: '#f9f9f9',
+        },
+      }}
+    >
+      <Toolbar />
       <List>
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-                component={Link}
-                href={item.path}
-                // --- APPLY NEW STYLES ---
-                sx={S_NAV_ITEM}
-                selected={pathname === item.path} // Set selected based on path
-                >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
+          <Link key={item.text} href={item.path} passHref style={{ textDecoration: 'none', color: 'inherit' }}>
+            <ListItemButton  sx={S_NAV_ITEM} 
+                selected={router.pathname === item.path}>
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItemButton>
+          </Link>
         ))}
       </List>
-      
-        <Divider sx={{ mx: 2 }} />
+      <Divider sx={{ mx: 2 }} />
         <List className="mt-auto">
-          <ListItem disablePadding>
-            <ListItemButton sx={S_NAV_ITEM}>
+          <ListItem disablePadding>            
+            <ListItemButton sx={S_NAV_ITEM} onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon />
               </ListItemIcon>
@@ -84,6 +109,6 @@ export default function Sidebar() {
             </ListItemButton>
           </ListItem>
         </List>
-    </Box>
+    </Drawer>
   );
 }

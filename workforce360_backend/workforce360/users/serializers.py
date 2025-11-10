@@ -6,14 +6,16 @@ from django.contrib.auth.models import Group
 
 
 class UserSerializer(serializers.ModelSerializer):
-    groups = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField()    
+    avatarUrl = serializers.CharField(source='person.avatarUrl')
 
     class Meta:
         model = User
-        fields = ["id","first_name", "last_name", "username", "email", "is_employee", "is_jobseeker", "is_admin", "date_joined", "groups"]
+        fields = ["id","first_name", "last_name", "username", "email", "is_employee", "is_jobseeker", "is_admin", "date_joined", "groups", "avatarUrl"]
 
     def get_groups(self, obj):
         return [group.name for group in obj.groups.all()]
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):

@@ -7,22 +7,35 @@ import {
   Box, Typography, Grid, Paper, List, ListItem, ListItemText, Divider, Pagination,
   Table,
   TableBody,
-  TableCell,
+  TableCell, Chip,
   TableContainer,
   TableHead,
   TableRow,
   CircularProgress, Fab, Container,
   Alert,
 } from "@mui/material";
-import DashboardLayout from "@/components/layout/DashboardLayout";
+import AdminLayout from "@/components/layout/AdminLayout";
 import EditIcon from '@mui/icons-material/Edit';
 import Delete from '@mui/icons-material/Delete';
-import CustomChart from "@/components/charts/CustomChart";
-import { Card, CardContent } from "@mui/material";
-import { useMemo } from "react";
 import EmployeeJoinTrend from "@/components/employees/EmployeeJoinTrend";
+import { CardUX } from "@/components/ui/card";
+import { Check, ClearRounded, People } from '@mui/icons-material';
+import AttachMoney from '@mui/icons-material/AttachMoney';
+import InsightsIcon from '@mui/icons-material/Insights';
+import Groups3Icon from '@mui/icons-material/Groups3';
 
-
+const getStatusColor = (status) => {
+    switch (status) {
+      case 'Active':
+        return 'success';
+      case 'On Leave':
+        return 'warning';
+      case 'Terminated':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
 
 
 export default function EmployeesPage() {
@@ -102,34 +115,24 @@ export default function EmployeesPage() {
     );
 
   return (
-    <DashboardLayout>
-        <Box sx={{ flexGrow: 1, p: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom color="primary">
-          Employees Overview
-        </Typography>
-
-        {/* KPIs Section */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {kpiItems.map((kpi, index) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
-              <Paper sx={{ p: 2, display: "flex", flexDirection: "column", height: 120, justifyContent: "space-between" }}>
-                <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                  {kpi.title}
-                </Typography>
-                <Typography component="p" variant="h4">
-                  {kpi.value}
-                </Typography>
-              </Paper>
-            </Grid>
-          ))}
+    <AdminLayout title="Employees" user={user}>
+      <Grid container spacing={2}>  {/* Grid container from MUI styles  with full width and grid items are evenly distrubuted */}
+        {/* Example Cards */}
+        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+          <CardUX title="Total Employees" value={keypis?.total_employees ?? "N/A"} icon={<People sx={{ fontSize: 60 }} />} color="#e0f7fa"/>
         </Grid>
-        <EmployeeJoinTrend />
-        {/* Employees List Section */}
-        <Paper sx={{ p: 2 }}>
-          <Typography variant="h5" component="h2" gutterBottom>
-            Employee List
-          </Typography>
-        </Paper>
+        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+          <CardUX title="Active Employees" value={keypis?.active_employees ?? "N/A"} icon={<Groups3Icon sx={{ fontSize: 60}}/>} color="#ffecb3"/>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+          <CardUX title="Average Salary" value={`$ ${keypis?.average_salary}`} icon={<AttachMoney sx={{ fontSize: 60 }}/>} color="#e8f5e9" />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+          <CardUX title="Average Performance" value={keypis?.average_performance ?? "N/A"} icon={<InsightsIcon sx={{ fontSize: 60 }} />} color="#f3e5f5"  />
+        </Grid>
+      </Grid>
+      <EmployeeJoinTrend />
+      <Typography variant="h5" component="h2" gutterBottom>Employee List </Typography>
         <TableContainer component={Paper} elevation={4}>
           <Table>
             <TableHead>
@@ -158,22 +161,21 @@ export default function EmployeesPage() {
                     <TableCell>{emp.date_of_birth}</TableCell>
                     <TableCell>{emp.gender}</TableCell>
                     <TableCell>{emp.emp_code}</TableCell>
-                    <TableCell>{emp.status}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={emp.status}
+                        color={getStatusColor(emp.status)}
+                        size="small"
+                      /></TableCell>
                     <TableCell>{emp.dataofjoining}</TableCell>
                     <TableCell>{emp.dataofleaving}</TableCell>
-                    <TableCell>{emp.is_blocked ? "Yes" : "No"}</TableCell>
+                    <TableCell>{emp.is_blocked ? <Check sx={{color: "green"}} />: <ClearRounded sx={{color: "red"}} />}</TableCell>
                     <TableCell>{emp.manager_name}</TableCell>
                     <TableCell>{emp.performance_score}</TableCell>
                     <TableCell>{emp.tenure_days}</TableCell>
                     <TableCell>
-                      <Box sx={{ '& > :not(style)': { m: 1 } }}>
-                        <Fab size="small" color="secondary" aria-label="edit">
-                          <EditIcon />
-                        </Fab>
-                        <Fab size="small" color="error" aria-label="delete">
-                          <Delete />
-                        </Fab>
-                      </Box>
+                          <EditIcon mr={1} color="secondary" />
+                          <Delete mr={1} color="error" />
                     </TableCell>
                   </TableRow>
                 ))
@@ -197,7 +199,6 @@ export default function EmployeesPage() {
             shape="rounded"
           />
         </Box>
-      </Box>
-    </DashboardLayout>
+    </AdminLayout>
   );
 }

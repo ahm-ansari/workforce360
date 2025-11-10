@@ -10,6 +10,8 @@ class Person(models.Model):
     last_name = models.CharField(max_length=200)
     postfix = models.CharField(max_length=200)
     date_of_birth = models.DateField()
+    avatarUrl = models.CharField(max_length=200, null=True, blank=True)
+    bio = models.TextField(max_length=200, null=True, blank=True)
     gender = models.CharField(max_length=10, choices=[
         ('M', 'Male'),
         ('F', 'Female'),
