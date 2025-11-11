@@ -23,7 +23,7 @@ export default function JobsPage() {
   const router = useRouter();
   const [user_data, setUser] = useState(null);
   const { data, error } = useSWR<JobOpening[]>('/jobs/', fetcher);
-  const user = useSWR<User[]>('/login/', fetcher)
+  const user = useSWR<User[]>('users/auth/login/', fetcher)
 
   useEffect(() => {
       const token = localStorage.getItem("token");
@@ -37,7 +37,7 @@ export default function JobsPage() {
 
   if (error) {
     return (
-      <AdminLayout title="Job Applications" user={user_data}>
+      <AdminLayout title="Job Applications">
         <Box className="flex justify-center items-center h-screen" color="error.main">Failed to load jobs</Box>
       </AdminLayout>
     );
@@ -45,14 +45,14 @@ export default function JobsPage() {
 
   if (!data) {
     return (
-      <AdminLayout title="Job Applications" user={user_data}>
+      <AdminLayout title="Job Applications">
         <Box className="flex justify-center items-center h-screen" color="info.main">Loading...</Box>
       </AdminLayout>
     );
   }
 
   return (
-    <AdminLayout title="Job Applications" user={user_data}>
+    <AdminLayout title="Job Applications">
       <Grid container spacing={3}>
       {/* KPI Cards */}
       <DashboardCards />
