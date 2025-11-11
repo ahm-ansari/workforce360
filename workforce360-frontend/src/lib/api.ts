@@ -97,6 +97,6 @@ export async function getLedgers(params: any) {
   return filteredLedgers;
 }
 
-export { receipts, vouchers, ledgers, api };
+// export { receipts, vouchers, ledgers, api };
 
-// export default api;
+export default api;
