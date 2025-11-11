@@ -9,7 +9,8 @@ import {
   Alert,
 } from "@mui/material";
 
-const API_URL = "http://127.0.0.1:8000/api/users/auth/login/";
+const API_URL = "https://ahmansari.pythonanywhere.com/api/users/auth/login/";
+// const API_URL = "http://127.0.0.1:8000/api/users/auth/login/";
 
 
 export default function LoginPage() {
