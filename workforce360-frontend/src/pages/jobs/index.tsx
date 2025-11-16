@@ -13,6 +13,7 @@ import RecruitmentFunnelChart from '@/components/jobs/RecruitmentFunnelChart';
 import TimeToFillTrend from '@/components/jobs/TimeToFillTrend';
 import JobListingTable from '@/components/jobs/JobListingTable';
 import Paper from '@mui/material/Paper';
+import { Box } from '@mui/material';
 
 
 
