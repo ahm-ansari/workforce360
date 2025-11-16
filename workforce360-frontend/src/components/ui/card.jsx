@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardActionArea, CardContent, CardHeader, Typography, CardMedia } from "@mui/material";
 import { FormatBold } from "@mui/icons-material";
 
-export const CardUX = ({title, value, icon="", color="#fff", children, className = "" }) => (
+export const CardUX = ({title, value, icon, color, children, className = "" }) => (
   // Style of the card should be bg-white rounded-xl shadow p-5
   <Card sx={{ bgcolor: 'background.paper', boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', borderRadius: '8px', mb: 2, mt: 2, p:1}} className={` ${className}`}>
       <CardActionArea>
