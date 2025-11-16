@@ -2,7 +2,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://ahmansari.pythonanywhere.com/api/', // 'http://localhost:8000/api/',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/',
+  // baseURL: 'https://ahmansari.pythonanywhere.com/api/', // 
   headers: {
     'Content-Type': 'application/json',
   }
