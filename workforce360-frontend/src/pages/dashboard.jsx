@@ -7,6 +7,10 @@ import CardContent from '@mui/material/CardContent';
 import { CardActionArea, CircularProgress, Alert} from '@mui/material';
 import axiosInstance from "../utils/axiosInstance";
 import AdminLayout from '@/components/layout/AdminLayout';
+import KPISection from '@/components/dashboard/KPISection';
+import ChartSection from '@/components/dashboard/ChartSection';
+import TableSection from '@/components/dashboard/TableSection';
+import HeatmapSection from '@/components/dashboard/HeatmapSection';
 
 import { usePathname } from 'next/navigation'; // Import to track active page
 
@@ -107,6 +111,18 @@ export default function DashboardPage() {
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
           <StatCard title="Total Projects" value={keypis?.total_projects ?? "N/A"} icon={<i className="fa fa-user"></i>} />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
+          <KPISection />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 8, md: 8, lg: 12}}>
+          <ChartSection />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4, md: 4, lg: 4}}>
+          <HeatmapSection />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 12, md: 12, lg: 8}}>
+          <TableSection />
         </Grid>
       </Grid>
 
