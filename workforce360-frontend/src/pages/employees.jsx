@@ -19,10 +19,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import Delete from '@mui/icons-material/Delete';
 import EmployeeJoinTrend from "@/components/employees/EmployeeJoinTrend";
 import { CardUX } from "@/components/ui/card";
-import { Check, ClearRounded, People } from '@mui/icons-material';
+import { Check, ClearRounded, People,Man, Woman } from '@mui/icons-material';
 import AttachMoney from '@mui/icons-material/AttachMoney';
 import InsightsIcon from '@mui/icons-material/Insights';
 import Groups3Icon from '@mui/icons-material/Groups3';
+
 
 const getStatusColor = (status) => {
     switch (status) {
@@ -137,7 +138,6 @@ export default function EmployeesPage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell><strong>ID</strong></TableCell>
                 <TableCell><strong>Name</strong></TableCell>
                 <TableCell><strong>DOB</strong></TableCell>
                 <TableCell><strong>Gender</strong></TableCell>
@@ -156,11 +156,10 @@ export default function EmployeesPage() {
               {employees.length > 0 ? (
                 employees.map((emp) => (
                   <TableRow key={emp.id} hover>
-                    <TableCell>{emp.id}</TableCell>
                     <TableCell>{emp.first_name} {emp.last_name}</TableCell>
                     <TableCell>{emp.date_of_birth}</TableCell>
-                    <TableCell>{emp.gender}</TableCell>
-                    <TableCell>{emp.emp_code}</TableCell>
+                    <TableCell>{emp.gender=== 'Male'? <Man sx={{ fontSize: 30 , color:"#2196f3"}} /> : <Woman sx={{ fontSize: 30 , color:"#e91e63"}} />}</TableCell>
+                    <TableCell><Chip label={emp.emp_code} color="primary" size="small"></Chip></TableCell>
                     <TableCell>
                       <Chip
                         label={emp.status}
