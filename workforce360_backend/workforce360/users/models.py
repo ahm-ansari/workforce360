@@ -56,5 +56,33 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+class Role(models.Model):
+    name: models.CharField = models.CharField(max_length=50, unique=True) # e.g., 'HR_Manager', 'Finance_Officer'
+    description = models.TextField(blank=True)
 
+    def __str__(self):
+        return self.name
 
+class Permission(models.Model):
+    code_name: models.CharField = models.CharField(max_length=100, unique=True) # e.g., 'recruitment:create_plan', 'invoice:generate'
+    description: models.CharField = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return self.code_name
+
+class UserProfile(models.Model):
+    user: models.OneToOneField = models.OneToOneField(User, on_delete=models.CASCADE)
+    roles: models.ManyToManyField = models.ManyToManyField(Role)
+    # Add other profile fields here # Example: link to employee details later
+    # employee_id = models.CharField(max_length=10, unique=True, null=True, blank=True)
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
+
+class RolePermission(models.Model):
+    role: models.ForeignKey = models.ForeignKey(Role, on_delete=models.CASCADE)
+    permission: models.ForeignKey = models.ForeignKey(Permission, on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ('role', 'permission')

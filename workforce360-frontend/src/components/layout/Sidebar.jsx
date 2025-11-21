@@ -17,19 +17,21 @@ import { usePathname } from 'next/navigation'; // Import to track active page
 const drawerWidth = 240;
 
 const menuItems = [
-  { text: "Applications", icon: <Apps />, path: "/jobs" },
-  { text: "Employees", icon: <People />, path: "/employees" },
-  { text: "Clients", icon: <Business />, path: "/clients" },
-  { text: "Projects", icon: <Assignment />, path: "/projects" },
-  { text: "Transactions", icon: <ReceiptLong />, path: "/transactions" },
-  { text: "Accounts", icon: <AccountBalanceWallet />, path: "/accounts" },
+  { text: "Applications", icon: <Apps />, path: "/jobs" , requiredPerm: null},
+  { text: 'Recruitment', icon: <Apps />, path: '/hr/recruitment', requiredPerm: 'recruitment:view_plan' },
+  { text: "Employees", icon: <People />, path: "/employees" , requiredPerm: null},
+  { text: "Clients", icon: <Business />, path: "/clients" , requiredPerm: null},
+  { text: "Projects", icon: <Assignment />, path: "/projects" , requiredPerm: null},
+  { text: 'Finance',icon: <Business />, path: '/finance/invoices', requiredPerm: 'invoice:view_all' },
+  { text: "Transactions", icon: <ReceiptLong />, path: "/transactions" , requiredPerm: null},
+  { text: "Accounts", icon: <AccountBalanceWallet />, path: "/accounts" , requiredPerm: null},
   { text: "Payrolls", icon: <Payments />, path: "/payrolls" },
-  { text: "Bills and Invoices", icon: <Description />, path: "/invoices" },
-  { text: "Inventory List", icon: <Inventory2 />, path: "/inventory" },
-  { text: "Executives", icon: <ManageAccounts />, path: "/executives" },
-  { text: "Reports", icon: <Assessment />, path: "/reports" },
-  { text: "Utilities", icon: <Build />, path: "/utilities" },
-  { text: "Settings", icon: <Settings />, path: "/settings" },
+  { text: "Bills and Invoices", icon: <Description />, path: "/invoices" , requiredPerm: null},
+  { text: "Inventory List", icon: <Inventory2 />, path: "/inventory" , requiredPerm: null},
+  { text: "Executives", icon: <ManageAccounts />, path: "/executives" , requiredPerm: null},
+  { text: "Reports", icon: <Assessment />, path: "/reports" , requiredPerm: null},
+  { text: "Utilities", icon: <Build />, path: "/utilities" , requiredPerm: null},
+  { text: "Settings", icon: <Settings />, path: "/settings" , requiredPerm: null},
 ];
 
 
@@ -89,6 +91,7 @@ export default function Sidebar() {
       <Toolbar />
       <List>
         {menuItems.map((item) => (
+          (item.requiredPerm === null || userPermissions.includes(item.requiredPerm)) && (
           <Link key={item.text} href={item.path} passHref style={{ textDecoration: 'none', color: 'inherit' }}>
             <ListItemButton  sx={S_NAV_ITEM} 
                 selected={router.pathname === item.path}>
@@ -96,6 +99,7 @@ export default function Sidebar() {
               <ListItemText primary={item.text} />
             </ListItemButton>
           </Link>
+          )
         ))}
       </List>
       <Divider sx={{ mx: 2 }} />
