@@ -23,6 +23,14 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 
+import CampaignIcon from '@mui/icons-material/Campaign';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import EngineeringIcon from '@mui/icons-material/Engineering';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+
 interface NavItem {
     label: string;
     path: string;
@@ -31,64 +39,110 @@ interface NavItem {
     children?: NavItem[];
 }
 
-const navItems: NavItem[] = [
-    { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon />, roles: ['admin', 'manager', 'hr', 'employee', 'finance', 'security'] },
+interface NavSection {
+    title: string;
+    items: NavItem[];
+}
 
-    // Master Records (Admin & HR)
+const navSections: NavSection[] = [
     {
-        label: 'Master Records',
-        path: '/master-records',
-        icon: <StorageIcon />,
-        roles: ['admin', 'hr'],
-        children: [
-            { label: 'Departments', path: '/departments', icon: <BusinessIcon />, roles: ['admin', 'hr'] },
-            { label: 'Designations', path: '/designations', icon: <BadgeIcon />, roles: ['admin', 'hr'] },
-            { label: 'Roles', path: '/roles', icon: <AdminPanelSettingsIcon />, roles: ['admin'] },
+        title: 'MAIN',
+        items: [
+            { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon />, roles: ['admin', 'manager', 'hr', 'employee', 'finance', 'security'] },
         ]
     },
-
-    // Employee Management
-    { label: 'Employees', path: '/employees', icon: <PeopleIcon />, roles: ['admin', 'hr', 'manager'] },
-
-    // HR Management
-    { label: 'Attendance', path: '/attendance', icon: <EventAvailableIcon />, roles: ['admin', 'manager', 'hr', 'employee'] },
-    { label: 'Leave', path: '/leave', icon: <EventNoteIcon />, roles: ['admin', 'manager', 'hr', 'employee'] },
-    { label: 'Documents', path: '/documents', icon: <DescriptionIcon />, roles: ['admin', 'manager', 'hr', 'employee'] },
-
-    // Task Management
-    { label: 'Tasks', path: '/tasks', icon: <WorkIcon />, roles: ['admin', 'manager', 'employee'] },
-
-    // Project Management
-    { label: 'Projects', path: '/projects', icon: <DescriptionIcon />, roles: ['admin', 'manager', 'employee'] },
-
-    // Client Relationship Management
-    { label: 'Clients', path: '/clients', icon: <BusinessIcon />, roles: ['admin', 'manager', 'hr', 'finance'] },
-
-    // Outsourcing Management
     {
-        label: 'Outsourcing',
-        path: '/outsourcing',
-        icon: <HandshakeIcon />,
-        roles: ['admin', 'manager', 'hr'],
-        children: [
-            { label: 'Overview', path: '/outsourcing', icon: <AssessmentIcon />, roles: ['admin', 'manager', 'hr'] },
-            { label: 'Staffing Requests', path: '/outsourcing/requests', icon: <AssignmentIcon />, roles: ['admin', 'manager', 'hr'] },
-            { label: 'Outsourced Staff', path: '/outsourcing/staff', icon: <AssignmentIndIcon />, roles: ['admin', 'manager', 'hr'] },
-            { label: 'Contracts', path: '/outsourcing/contracts', icon: <DescriptionIcon />, roles: ['admin', 'hr'] },
-            { label: 'Timesheets', path: '/outsourcing/timesheets', icon: <EventNoteIcon />, roles: ['admin', 'hr', 'manager'] },
+        title: 'HUMAN RESOURCES',
+        items: [
+            { label: 'Recruitment', path: '/recruitment', icon: <PersonAddIcon />, roles: ['admin', 'hr'] },
+            { label: 'Employees', path: '/employees', icon: <PeopleIcon />, roles: ['admin', 'hr', 'manager'] },
+            { label: 'Attendance', path: '/attendance', icon: <EventAvailableIcon />, roles: ['admin', 'manager', 'hr', 'employee'] },
+            { label: 'Leave', path: '/leave', icon: <EventNoteIcon />, roles: ['admin', 'manager', 'hr', 'employee'] },
+            { label: 'Finance (Payroll)', path: '/finance', icon: <AccountBalanceIcon />, roles: ['admin', 'finance'] },
         ]
     },
-
-    // Finance Management
-
-    { label: 'Finance', path: '/finance', icon: <AccountBalanceIcon />, roles: ['admin', 'finance'] },
-
-    // Recruitment Management
-    { label: 'Recruitment', path: '/recruitment', icon: <PersonAddIcon />, roles: ['admin', 'hr'] },
-
-    // Visitor & Security Management
-    { label: 'Visitors', path: '/visitors', icon: <SecurityIcon />, roles: ['admin', 'security'] },
-    { label: 'Companies', path: '/companies', icon: <BusinessIcon />, roles: ['admin', 'hr', 'security'] },
+    {
+        title: 'COMMERCIAL & SALES',
+        items: [
+            { label: 'Clients', path: '/clients', icon: <BusinessIcon />, roles: ['admin', 'manager', 'hr', 'finance'] },
+            {
+                label: 'Marketing',
+                path: '/marketing',
+                icon: <CampaignIcon />,
+                roles: ['admin', 'manager'],
+                children: [
+                    { label: 'Overview', path: '/marketing', icon: <AssessmentIcon />, roles: ['admin', 'manager'] },
+                    { label: 'Analysis', path: '/marketing/analysis', icon: <AutoGraphIcon />, roles: ['admin', 'manager'] },
+                    { label: 'Strategy', path: '/marketing/strategy', icon: <TrendingUpIcon />, roles: ['admin', 'manager'] },
+                    { label: 'Plan', path: '/marketing/plan', icon: <AssignmentIcon />, roles: ['admin', 'manager'] },
+                ]
+            },
+            {
+                label: 'Sales',
+                path: '/sales',
+                icon: <RequestQuoteIcon />,
+                roles: ['admin', 'manager', 'finance'],
+                children: [
+                    { label: 'Quotations', path: '/sales/quotations', icon: <RequestQuoteIcon />, roles: ['admin', 'manager'] },
+                    { label: 'Work Orders', path: '/sales/work-orders', icon: <AssignmentIcon />, roles: ['admin', 'manager'] },
+                    { label: 'Invoices', path: '/sales/invoices', icon: <ReceiptLongIcon />, roles: ['admin', 'manager', 'finance'] },
+                ]
+            },
+        ]
+    },
+    {
+        title: 'OPERATIONS',
+        items: [
+            { label: 'Projects', path: '/projects', icon: <DescriptionIcon />, roles: ['admin', 'manager', 'employee'] },
+            { label: 'Tasks', path: '/tasks', icon: <WorkIcon />, roles: ['admin', 'manager', 'employee'] },
+            {
+                label: 'Outsourcing',
+                path: '/outsourcing',
+                icon: <HandshakeIcon />,
+                roles: ['admin', 'manager', 'hr'],
+                children: [
+                    { label: 'Overview', path: '/outsourcing', icon: <AssessmentIcon />, roles: ['admin', 'manager', 'hr'] },
+                    { label: 'Staffing Requests', path: '/outsourcing/requests', icon: <AssignmentIcon />, roles: ['admin', 'manager', 'hr'] },
+                    { label: 'Outsourced Staff', path: '/outsourcing/staff', icon: <AssignmentIndIcon />, roles: ['admin', 'manager', 'hr'] },
+                    { label: 'Contracts', path: '/outsourcing/contracts', icon: <DescriptionIcon />, roles: ['admin', 'hr'] },
+                    { label: 'Timesheets', path: '/outsourcing/timesheets', icon: <EventNoteIcon />, roles: ['admin', 'hr', 'manager'] },
+                ]
+            },
+            {
+                label: 'Staffing Ops',
+                path: '/operations',
+                icon: <EngineeringIcon />,
+                roles: ['admin', 'manager'],
+                children: [
+                    { label: 'Deployments', path: '/operations/deployments', icon: <LocalShippingIcon />, roles: ['admin', 'manager'] },
+                ]
+            },
+        ]
+    },
+    {
+        title: 'FACILITY & SECURITY',
+        items: [
+            { label: 'Visitors', path: '/visitors', icon: <SecurityIcon />, roles: ['admin', 'security'] },
+            { label: 'Companies', path: '/companies', icon: <BusinessIcon />, roles: ['admin', 'hr', 'security'] },
+        ]
+    },
+    {
+        title: 'SYSTEM ADMIN',
+        items: [
+            {
+                label: 'Master Records',
+                path: '/master-records',
+                icon: <StorageIcon />,
+                roles: ['admin', 'hr'],
+                children: [
+                    { label: 'Departments', path: '/departments', icon: <BusinessIcon />, roles: ['admin', 'hr'] },
+                    { label: 'Designations', path: '/designations', icon: <BadgeIcon />, roles: ['admin', 'hr'] },
+                    { label: 'Roles', path: '/roles', icon: <AdminPanelSettingsIcon />, roles: ['admin'] },
+                ]
+            },
+            { label: 'Documents', path: '/documents', icon: <DescriptionIcon />, roles: ['admin', 'manager', 'hr', 'employee'] },
+        ]
+    }
 ];
 
 export default function Sidebar() {
@@ -257,6 +311,19 @@ export default function Sidebar() {
                     background: 'linear-gradient(180deg, #818cf8 0%, #6366f1 100%)',
                     color: 'white',
                     borderRight: 'none',
+                    '&::-webkit-scrollbar': {
+                        width: '4px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                        background: 'transparent',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        borderRadius: '10px',
+                    },
+                    '&::-webkit-scrollbar-thumb:hover': {
+                        background: 'rgba(255, 255, 255, 0.3)',
+                    },
                 }
             }}
         >
@@ -281,8 +348,30 @@ export default function Sidebar() {
                 </Box>
             </Box>
 
-            <List sx={{ px: 2 }}>
-                {navItems.map(renderNavItem)}
+            <List sx={{ px: 2, pb: 4 }}>
+                {navSections.map((section) => {
+                    const visibleItems = section.items.filter(item => item.roles.includes(userRole));
+                    if (visibleItems.length === 0) return null;
+
+                    return (
+                        <Box key={section.title} sx={{ mt: 3 }}>
+                            <Typography
+                                variant="overline"
+                                sx={{
+                                    px: 2,
+                                    color: 'rgba(255, 255, 255, 0.5)',
+                                    fontWeight: 700,
+                                    letterSpacing: '0.1em',
+                                }}
+                            >
+                                {section.title}
+                            </Typography>
+                            <Box sx={{ mt: 1 }}>
+                                {visibleItems.map(renderNavItem)}
+                            </Box>
+                        </Box>
+                    );
+                })}
             </List>
 
             <Box sx={{ flexGrow: 1 }} />
