@@ -36,17 +36,24 @@ class EmployeeSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     role = serializers.IntegerField(required=False)
 
+    full_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Employee
         fields = [
             'id', 'user', 'user_details', 'department', 'department_details',
             'designation', 'designation_details', 'date_of_joining',
-            'address', 'emergency_contact',
+            'address', 'emergency_contact', 'full_name',
             'first_name', 'last_name', 'email', 'password', 'role'
         ]
         extra_kwargs = {
             'user': {'read_only': True}
         }
+
+    def get_full_name(self, obj):
+        if obj.user:
+            return obj.user.get_full_name() or obj.user.username
+        return f"Employee #{obj.id}"
 
     def update(self, instance, validated_data):
         # Extract manual fields
