@@ -40,7 +40,7 @@ export default function NewTimesheet() {
     useEffect(() => {
         const fetchPlacements = async () => {
             try {
-                const response = await axios.get('/api/outsourcing/staff/');
+                const response = await axios.get('outsourcing/staff/');
                 setPlacements(response.data.filter((p: any) => p.status === 'ACTIVE'));
             } catch (err) {
                 console.error('Error fetching placements:', err);
@@ -83,7 +83,7 @@ export default function NewTimesheet() {
         setError(null);
 
         try {
-            await axios.post('/api/outsourcing/timesheets/', formData);
+            await axios.post('outsourcing/timesheets/', formData);
             router.push('/outsourcing/timesheets');
         } catch (err: any) {
             console.error('Error submitting timesheet:', err);
