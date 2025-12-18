@@ -39,6 +39,7 @@ export default function NewClient() {
         tax_id: '',
         vat_id: '',
         account_manager: '',
+        joined_date: new Date().toISOString().split('T')[0],
         payment_terms: '',
         currency: 'USD',
         notes: ''
@@ -47,7 +48,8 @@ export default function NewClient() {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await axios.get('/api/employees/employees/');
+                // baseURL is already /api/, so we just need 'employees/'
+                const response = await axios.get('employees/');
                 setEmployees(response.data);
             } catch (err) {
                 console.error('Error fetching employees:', err);
@@ -69,12 +71,30 @@ export default function NewClient() {
         setLoading(true);
         setError(null);
 
+        // Clean data: convert empty strings to null for non-required fields
+        // that Django expects to be null or a valid value.
+        const submissionData: any = { ...formData };
+        if (!submissionData.account_manager) {
+            submissionData.account_manager = null;
+        }
+
         try {
-            await axios.post('/api/clients/clients/', formData);
+            await axios.post('clients/clients/', submissionData);
             router.push('/clients');
         } catch (err: any) {
             console.error('Error creating client:', err);
-            setError(err.response?.data?.detail || 'Failed to create client. Please check your input.');
+
+            // Try to extract detailed error messages from the backend
+            if (err.response?.data) {
+                const data = err.response.data;
+                const messages = Object.keys(data).map(key => {
+                    const value = data[key];
+                    return `${key}: ${Array.isArray(value) ? value.join(', ') : value}`;
+                });
+                setError(messages.join(' | ') || 'Failed to create client.');
+            } else {
+                setError('Failed to create client. Please check your connection.');
+            }
         } finally {
             setLoading(false);
         }
@@ -235,13 +255,24 @@ export default function NewClient() {
 
                                         <Autocomplete
                                             options={employees}
-                                            getOptionLabel={(option: any) => `${option.user?.first_name} ${option.user?.last_name} (${option.user?.username})`}
+                                            getOptionLabel={(option: any) => option.full_name || `Employee #${option.id}`}
+                                            noOptionsText="No employees found"
                                             renderInput={(params) => (
-                                                <TextField {...params} label="Account Manager" />
+                                                <TextField {...params} label="Account Manager" placeholder={employees.length === 0 ? "Loading or no employees..." : "Select an employee"} />
                                             )}
                                             onChange={(_, newValue) => {
                                                 setFormData(prev => ({ ...prev, account_manager: newValue ? newValue.id : '' }));
                                             }}
+                                        />
+
+                                        <TextField
+                                            fullWidth
+                                            label="Relationship Start Date"
+                                            name="joined_date"
+                                            type="date"
+                                            value={formData.joined_date}
+                                            onChange={handleChange}
+                                            InputLabelProps={{ shrink: true }}
                                         />
                                     </Stack>
                                 </CardContent>
