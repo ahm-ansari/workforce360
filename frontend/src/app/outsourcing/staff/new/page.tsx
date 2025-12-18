@@ -24,9 +24,9 @@ export default function AssignStaff() {
     const searchParams = useSearchParams();
     const requestIdParam = searchParams.get('requestId');
 
-    const [requests, setRequests] = useState([]);
-    const [employees, setEmployees] = useState([]);
-    const [companies, setCompanies] = useState([]);
+    const [requests, setRequests] = useState<any[]>([]);
+    const [employees, setEmployees] = useState<any[]>([]);
+    const [companies, setCompanies] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [fetchingData, setFetchingData] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -47,9 +47,9 @@ export default function AssignStaff() {
         const fetchData = async () => {
             try {
                 const [reqRes, empRes, compRes] = await Promise.all([
-                    axios.get('/api/outsourcing/requests/'),
-                    axios.get('/api/employees/employees/'),
-                    axios.get('/api/visitors/companies/')
+                    axios.get('outsourcing/requests/'),
+                    axios.get('employees/'),
+                    axios.get('visitors/companies/')
                 ]);
                 setRequests(reqRes.data);
                 setEmployees(empRes.data);
@@ -106,7 +106,7 @@ export default function AssignStaff() {
         setError(null);
 
         try {
-            await axios.post('/api/outsourcing/staff/', formData);
+            await axios.post('outsourcing/staff/', formData);
             router.push('/outsourcing/staff');
         } catch (err: any) {
             console.error('Error creating assignment:', err);
@@ -169,7 +169,7 @@ export default function AssignStaff() {
 
                                     <Autocomplete
                                         options={employees}
-                                        getOptionLabel={(option: any) => `${option.user?.first_name} ${option.user?.last_name} (${option.user?.username})`}
+                                        getOptionLabel={(option: any) => option.full_name || `Employee #${option.id}`}
                                         renderInput={(params) => (
                                             <TextField {...params} label="Select Employee" required />
                                         )}
