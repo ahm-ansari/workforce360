@@ -11,6 +11,15 @@ import {
     Stack,
     Chip,
     Divider,
+    Alert,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    MenuItem,
+    FormControlLabel,
+    Checkbox,
     Tabs,
     Tab,
     Paper,
@@ -19,8 +28,7 @@ import {
     ListItemText,
     Avatar,
     IconButton,
-    CircularProgress,
-    Alert
+    CircularProgress
 } from '@mui/material';
 import { useParams, useRouter } from 'next/navigation';
 import {
@@ -58,21 +66,79 @@ export default function ClientDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [tabValue, setTabValue] = useState(0);
+    const [contactDialogOpen, setContactDialogOpen] = useState(false);
+    const [siteDialogOpen, setSiteDialogOpen] = useState(false);
+    const [formLoading, setFormLoading] = useState(false);
+
+    const [contactForm, setContactForm] = useState({
+        first_name: '',
+        last_name: '',
+        designation: '',
+        email: '',
+        phone: '',
+        is_primary: false,
+        notes: ''
+    });
+
+    const [siteForm, setSiteForm] = useState({
+        site_name: '',
+        site_type: 'BRANCH',
+        address: '',
+        city: '',
+        state: '',
+        country: 'India',
+        zip_code: '',
+        is_billing_address: false,
+        is_shipping_address: false
+    });
+
+    const fetchClient = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`clients/clients/${id}/`);
+            setClient(response.data);
+            setError(null);
+        } catch (err) {
+            console.error('Error fetching client details:', err);
+            setError('Failed to load client details.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchClient = async () => {
-            try {
-                const response = await axios.get(`/api/clients/clients/${id}/`);
-                setClient(response.data);
-            } catch (err) {
-                console.error('Error fetching client details:', err);
-                setError('Failed to load client details.');
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchClient();
     }, [id]);
+
+    const handleAddContact = async () => {
+        setFormLoading(true);
+        try {
+            await axios.post('clients/contacts/', { ...contactForm, client: id });
+            setContactDialogOpen(false);
+            setContactForm({ first_name: '', last_name: '', designation: '', email: '', phone: '', is_primary: false, notes: '' });
+            fetchClient();
+        } catch (err: any) {
+            console.error('Error adding contact:', err);
+            alert(err.response?.data ? JSON.stringify(err.response.data) : 'Failed to add contact');
+        } finally {
+            setFormLoading(false);
+        }
+    };
+
+    const handleAddSite = async () => {
+        setFormLoading(true);
+        try {
+            await axios.post('clients/sites/', { ...siteForm, client: id });
+            setSiteDialogOpen(false);
+            setSiteForm({ site_name: '', site_type: 'BRANCH', address: '', city: '', state: '', country: 'India', zip_code: '', is_billing_address: false, is_shipping_address: false });
+            fetchClient();
+        } catch (err: any) {
+            console.error('Error adding site:', err);
+            alert(err.response?.data ? JSON.stringify(err.response.data) : 'Failed to add site');
+        } finally {
+            setFormLoading(false);
+        }
+    };
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
@@ -195,7 +261,7 @@ export default function ClientDetail() {
                             <TabPanel value={tabValue} index={1}>
                                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                                     <Typography variant="h6" fontWeight={600}>Client Contacts</Typography>
-                                    <Button size="small" startIcon={<AddIcon />} variant="outlined">Add Contact</Button>
+                                    <Button size="small" startIcon={<AddIcon />} variant="outlined" onClick={() => setContactDialogOpen(true)}>Add Contact</Button>
                                 </Stack>
                                 <Grid container spacing={2}>
                                     {client.contacts?.length > 0 ? client.contacts.map((contact: any) => (
@@ -234,7 +300,7 @@ export default function ClientDetail() {
                             <TabPanel value={tabValue} index={2}>
                                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                                     <Typography variant="h6" fontWeight={600}>Operational Sites</Typography>
-                                    <Button size="small" startIcon={<AddIcon />} variant="outlined">Add Site</Button>
+                                    <Button size="small" startIcon={<AddIcon />} variant="outlined" onClick={() => setSiteDialogOpen(true)}>Add Site</Button>
                                 </Stack>
                                 <List>
                                     {client.sites?.length > 0 ? client.sites.map((site: any) => (
@@ -265,6 +331,182 @@ export default function ClientDetail() {
                     </Card>
                 </Grid>
             </Grid>
+
+            {/* Add Contact Dialog */}
+            <Dialog open={contactDialogOpen} onClose={() => setContactDialogOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Add New Contact</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                                <TextField
+                                    fullWidth
+                                    label="First Name"
+                                    value={contactForm.first_name}
+                                    onChange={(e) => setContactForm({ ...contactForm, first_name: e.target.value })}
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Last Name"
+                                    value={contactForm.last_name}
+                                    onChange={(e) => setContactForm({ ...contactForm, last_name: e.target.value })}
+                                />
+                            </Grid>
+                        </Grid>
+                        <TextField
+                            fullWidth
+                            label="Designation"
+                            value={contactForm.designation}
+                            onChange={(e) => setContactForm({ ...contactForm, designation: e.target.value })}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Email"
+                            type="email"
+                            value={contactForm.email}
+                            onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Phone"
+                            value={contactForm.phone}
+                            onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={contactForm.is_primary}
+                                    onChange={(e) => setContactForm({ ...contactForm, is_primary: e.target.checked })}
+                                />
+                            }
+                            label="Primary Contact"
+                        />
+                        <TextField
+                            fullWidth
+                            label="Notes"
+                            multiline
+                            rows={2}
+                            value={contactForm.notes}
+                            onChange={(e) => setContactForm({ ...contactForm, notes: e.target.value })}
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions sx={{ p: 3 }}>
+                    <Button onClick={() => setContactDialogOpen(false)}>Cancel</Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleAddContact}
+                        disabled={formLoading || !contactForm.first_name || !contactForm.email}
+                    >
+                        {formLoading ? 'Saving...' : 'Save Contact'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Add Site Dialog */}
+            <Dialog open={siteDialogOpen} onClose={() => setSiteDialogOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Add New Location / Site</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <TextField
+                            fullWidth
+                            label="Site Name"
+                            value={siteForm.site_name}
+                            onChange={(e) => setSiteForm({ ...siteForm, site_name: e.target.value })}
+                            placeholder="e.g. Mumbai HQ, Delhi Branch"
+                        />
+                        <TextField
+                            select
+                            fullWidth
+                            label="Site Type"
+                            value={siteForm.site_type}
+                            onChange={(e) => setSiteForm({ ...siteForm, site_type: e.target.value })}
+                        >
+                            <MenuItem value="HEADQUARTERS">Headquarters</MenuItem>
+                            <MenuItem value="BRANCH">Branch Office</MenuItem>
+                            <MenuItem value="WAREHOUSE">Warehouse</MenuItem>
+                            <MenuItem value="ONSITE_CLIENT">Client On-site</MenuItem>
+                            <MenuItem value="OTHER">Other</MenuItem>
+                        </TextField>
+                        <TextField
+                            fullWidth
+                            label="Address"
+                            multiline
+                            rows={2}
+                            value={siteForm.address}
+                            onChange={(e) => setSiteForm({ ...siteForm, address: e.target.value })}
+                        />
+                        <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                                <TextField
+                                    fullWidth
+                                    label="City"
+                                    value={siteForm.city}
+                                    onChange={(e) => setSiteForm({ ...siteForm, city: e.target.value })}
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <TextField
+                                    fullWidth
+                                    label="State"
+                                    value={siteForm.state}
+                                    onChange={(e) => setSiteForm({ ...siteForm, state: e.target.value })}
+                                />
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Country"
+                                    value={siteForm.country}
+                                    onChange={(e) => setSiteForm({ ...siteForm, country: e.target.value })}
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Zip Code"
+                                    value={siteForm.zip_code}
+                                    onChange={(e) => setSiteForm({ ...siteForm, zip_code: e.target.value })}
+                                />
+                            </Grid>
+                        </Grid>
+                        <Stack direction="row" spacing={2}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={siteForm.is_billing_address}
+                                        onChange={(e) => setSiteForm({ ...siteForm, is_billing_address: e.target.checked })}
+                                    />
+                                }
+                                label="Billing Address"
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={siteForm.is_shipping_address}
+                                        onChange={(e) => setSiteForm({ ...siteForm, is_shipping_address: e.target.checked })}
+                                    />
+                                }
+                                label="Shipping Address"
+                            />
+                        </Stack>
+                    </Box>
+                </DialogContent>
+                <DialogActions sx={{ p: 3 }}>
+                    <Button onClick={() => setSiteDialogOpen(false)}>Cancel</Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleAddSite}
+                        disabled={formLoading || !siteForm.site_name || !siteForm.address}
+                    >
+                        {formLoading ? 'Saving...' : 'Save Site'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }
