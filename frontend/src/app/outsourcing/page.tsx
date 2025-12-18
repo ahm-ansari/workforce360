@@ -73,7 +73,7 @@ export default function OutsourcingOverview() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get('/api/outsourcing/requests/stats/');
+                const response = await axios.get('outsourcing/requests/stats/');
                 setStats(response.data);
             } catch (err) {
                 console.error('Error fetching stats:', err);
