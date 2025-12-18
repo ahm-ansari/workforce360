@@ -22,6 +22,7 @@ import axios from '@/lib/axios';
 
 export default function NewClient() {
     const router = useRouter();
+    const [mounted, setMounted] = useState(false);
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(false);
     const [fetchingData, setFetchingData] = useState(true);
@@ -39,13 +40,19 @@ export default function NewClient() {
         tax_id: '',
         vat_id: '',
         account_manager: '',
-        joined_date: new Date().toISOString().split('T')[0],
+        joined_date: '',
         payment_terms: '',
         currency: 'USD',
         notes: ''
     });
 
     useEffect(() => {
+        setMounted(true);
+        setFormData(prev => ({
+            ...prev,
+            joined_date: new Date().toISOString().split('T')[0]
+        }));
+
         const fetchEmployees = async () => {
             try {
                 // baseURL is already /api/, so we just need 'employees/'
@@ -100,7 +107,7 @@ export default function NewClient() {
         }
     };
 
-    if (fetchingData) {
+    if (!mounted || fetchingData) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                 <CircularProgress />
