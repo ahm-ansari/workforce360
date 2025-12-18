@@ -338,7 +338,7 @@ export default function ClientDetail() {
                 <DialogContent>
                     <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <Grid container spacing={2}>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     label="First Name"
@@ -346,7 +346,7 @@ export default function ClientDetail() {
                                     onChange={(e) => setContactForm({ ...contactForm, first_name: e.target.value })}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     label="Last Name"
@@ -439,7 +439,7 @@ export default function ClientDetail() {
                             onChange={(e) => setSiteForm({ ...siteForm, address: e.target.value })}
                         />
                         <Grid container spacing={2}>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     label="City"
@@ -447,7 +447,7 @@ export default function ClientDetail() {
                                     onChange={(e) => setSiteForm({ ...siteForm, city: e.target.value })}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     label="State"
@@ -457,7 +457,7 @@ export default function ClientDetail() {
                             </Grid>
                         </Grid>
                         <Grid container spacing={2}>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     label="Country"
@@ -465,7 +465,7 @@ export default function ClientDetail() {
                                     onChange={(e) => setSiteForm({ ...siteForm, country: e.target.value })}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     label="Zip Code"
