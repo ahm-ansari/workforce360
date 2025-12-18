@@ -30,4 +30,7 @@ urlpatterns = [
     path('api/projects/', include('apps.projects.urls')),
     path('api/outsourcing/', include('apps.outsourcing.urls')),
     path('api/clients/', include('apps.clients.urls')),
+    path('api/marketing/', include('apps.marketing.urls')),
+    path('api/sales/', include('apps.sales.urls')),
+    path('api/operations/', include('apps.operations.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
