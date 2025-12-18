@@ -49,7 +49,7 @@ export default function ClientList() {
 
     const fetchClients = async () => {
         try {
-            const response = await axios.get('/api/clients/clients/');
+            const response = await axios.get('clients/clients/');
             setClients(response.data);
         } catch (error) {
             console.error('Error fetching clients:', error);
