@@ -43,7 +43,7 @@ export default function NewStaffingRequest() {
     useEffect(() => {
         const fetchCompanies = async () => {
             try {
-                const response = await axios.get('/api/visitors/companies/');
+                const response = await axios.get('visitors/companies/');
                 setCompanies(response.data);
             } catch (err) {
                 console.error('Error fetching companies:', err);
@@ -66,7 +66,7 @@ export default function NewStaffingRequest() {
         setError(null);
 
         try {
-            await axios.post('/api/outsourcing/requests/', formData);
+            await axios.post('outsourcing/requests/', formData);
             router.push('/outsourcing/requests');
         } catch (err: any) {
             console.error('Error creating request:', err);
