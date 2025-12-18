@@ -21,17 +21,28 @@ class ClientSiteSerializer(serializers.ModelSerializer):
 class ClientSerializer(serializers.ModelSerializer):
     contacts = ClientContactSerializer(many=True, read_only=True)
     sites = ClientSiteSerializer(many=True, read_only=True)
-    account_manager_name = serializers.CharField(source='account_manager.user.get_full_name', read_only=True)
+    account_manager_name = serializers.SerializerMethodField()
+    account_manager_details = EmployeeShortSerializer(source='account_manager', read_only=True)
     
     class Meta:
         model = Client
         fields = '__all__'
 
+    def get_account_manager_name(self, obj):
+        if obj.account_manager and obj.account_manager.user:
+            return obj.account_manager.user.get_full_name()
+        return "Unassigned"
+
 class ClientListSerializer(serializers.ModelSerializer):
-    account_manager_name = serializers.CharField(source='account_manager.user.get_full_name', read_only=True)
+    account_manager_name = serializers.SerializerMethodField()
     contact_count = serializers.IntegerField(source='contacts.count', read_only=True)
     site_count = serializers.IntegerField(source='sites.count', read_only=True)
 
     class Meta:
         model = Client
         fields = ['id', 'name', 'client_type', 'status', 'email', 'phone', 'industry', 'account_manager_name', 'contact_count', 'site_count']
+
+    def get_account_manager_name(self, obj):
+        if obj.account_manager and obj.account_manager.user:
+            return obj.account_manager.user.get_full_name()
+        return "Unassigned"
