@@ -40,7 +40,7 @@ export default function StaffingRequestDetail() {
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                const response = await axios.get(`/api/outsourcing/requests/${id}/`);
+                const response = await axios.get(`outsourcing/requests/${id}/`);
                 setRequest(response.data);
             } catch (err) {
                 console.error('Error fetching request details:', err);
@@ -91,7 +91,7 @@ export default function StaffingRequestDetail() {
                             <Typography variant="h6" fontWeight={600} gutterBottom>Required Skills</Typography>
                             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
                                 {request.required_skills.split(',').map((skill: string) => (
-                                    <Chip key={skill} label={skill.trim()} size="small" variant="tonal" />
+                                    <Chip key={skill} label={skill.trim()} size="small" variant="outlined" />
                                 ))}
                             </Box>
 
