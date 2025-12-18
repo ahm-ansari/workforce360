@@ -38,7 +38,7 @@ export default function StaffingRequests() {
 
     const fetchRequests = async () => {
         try {
-            const response = await axios.get('/api/outsourcing/requests/');
+            const response = await axios.get('outsourcing/requests/');
             setRequests(response.data);
         } catch (error) {
             console.error('Error fetching staffing requests:', error);
