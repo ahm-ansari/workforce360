@@ -61,6 +61,9 @@ const navItems: NavItem[] = [
     // Project Management
     { label: 'Projects', path: '/projects', icon: <DescriptionIcon />, roles: ['admin', 'manager', 'employee'] },
 
+    // Client Relationship Management
+    { label: 'Clients', path: '/clients', icon: <BusinessIcon />, roles: ['admin', 'manager', 'hr', 'finance'] },
+
     // Outsourcing Management
     {
         label: 'Outsourcing',
