@@ -109,3 +109,41 @@ class InvoiceItem(models.Model):
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     unit_price = models.DecimalField(max_digits=12, decimal_places=2)
     total = models.DecimalField(max_digits=12, decimal_places=2)
+
+    def save(self, *args, **kwargs):
+        self.total = self.quantity * self.unit_price
+        super().save(*args, **kwargs)
+
+class Payment(models.Model):
+    PAYMENT_MODE_CHOICES = [
+        ('CASH', 'Cash'),
+        ('BANK_TRANSFER', 'Bank Transfer'),
+        ('CHEQUE', 'Cheque'),
+        ('CREDIT_CARD', 'Credit Card'),
+        ('ONLINE', 'Online Payment'),
+    ]
+
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='payments')
+    date = models.DateField()
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    payment_mode = models.CharField(max_length=20, choices=PAYMENT_MODE_CHOICES)
+    reference_number = models.CharField(max_length=100, blank=True, help_text="Transaction ID, Cheque No, etc.")
+    notes = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Payment of {self.amount} for {self.invoice.invoice_number}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Update invoice amount_paid
+        invoice = self.invoice
+        total_paid = invoice.payments.aggregate(models.Sum('amount'))['amount__sum'] or 0
+        invoice.amount_paid = total_paid
+        if total_paid >= invoice.total_amount:
+            invoice.status = 'PAID'
+        elif total_paid > 0:
+            invoice.status = 'PARTIALLY_PAID'
+        invoice.save()

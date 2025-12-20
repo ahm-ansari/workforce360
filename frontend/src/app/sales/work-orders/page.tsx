@@ -11,11 +11,15 @@ import {
     Add as AddIcon,
     Search as SearchIcon,
     Assignment as AssignmentIcon,
-    Visibility as VisibilityIcon
+    Visibility as VisibilityIcon,
+    ReceiptLong as InvoiceIcon,
+    CheckCircle as CompleteIcon
 } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
 import axios from '@/lib/axios';
 
 export default function WorkOrdersPage() {
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [workOrders, setWorkOrders] = useState<any[]>([]);
     const [clients, setClients] = useState<any[]>([]);
@@ -61,6 +65,23 @@ export default function WorkOrdersPage() {
         }
     };
 
+    const handleGenerateInvoice = (wo: any) => {
+        // Navigate or show message. For now, simple console and alert
+        // In a real app, you'd pass the WO ID to the Invoice creation page
+        alert(`Initializing Invoice for ${wo.work_order_number}...`);
+        router.push(`/sales/invoices?work_order=${wo.id}`);
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'COMPLETED': return 'success';
+            case 'IN_PROGRESS': return 'info';
+            case 'PENDING': return 'warning';
+            case 'CANCELLED': return 'error';
+            default: return 'default';
+        }
+    };
+
     if (!mounted) return null;
 
     return (
@@ -84,7 +105,7 @@ export default function WorkOrdersPage() {
                 </Button>
             </Stack>
 
-            <Card sx={{ borderRadius: 4, overflow: 'hidden' }}>
+            <Card sx={{ borderRadius: 4, overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
                 <TableContainer>
                     <Table>
                         <TableHead>
@@ -92,6 +113,7 @@ export default function WorkOrdersPage() {
                                 <TableCell sx={{ fontWeight: 600 }}>Work Order #</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Client</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Start Date</TableCell>
+                                <TableCell sx={{ fontWeight: 600 }}>Value</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                                 <TableCell align="right" sx={{ fontWeight: 600 }}>Actions</TableCell>
                             </TableRow>
@@ -99,19 +121,36 @@ export default function WorkOrdersPage() {
                         <TableBody>
                             {workOrders.length > 0 ? workOrders.map((wo) => (
                                 <TableRow key={wo.id} hover>
-                                    <TableCell fontWeight={600}>{wo.work_order_number}</TableCell>
+                                    <TableCell sx={{ fontWeight: 600 }}>{wo.work_order_number}</TableCell>
                                     <TableCell>{wo.client_name}</TableCell>
                                     <TableCell>{wo.start_date}</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>${parseFloat(wo.total_value).toLocaleString()}</TableCell>
                                     <TableCell>
-                                        <Chip label={wo.status} size="small" variant="outlined" />
+                                        <Chip
+                                            label={wo.status}
+                                            size="small"
+                                            color={getStatusColor(wo.status) as any}
+                                            variant="outlined"
+                                            sx={{ fontWeight: 600 }}
+                                        />
                                     </TableCell>
                                     <TableCell align="right">
-                                        <IconButton size="small"><VisibilityIcon fontSize="small" /></IconButton>
+                                        <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                            <IconButton
+                                                size="small"
+                                                color="primary"
+                                                title="Generate Invoice"
+                                                onClick={() => handleGenerateInvoice(wo)}
+                                            >
+                                                <InvoiceIcon fontSize="small" />
+                                            </IconButton>
+                                            <IconButton size="small"><VisibilityIcon fontSize="small" /></IconButton>
+                                        </Stack>
                                     </TableCell>
                                 </TableRow>
                             )) : (
                                 <TableRow>
-                                    <TableCell colSpan={5} align="center" sx={{ py: 10 }}>
+                                    <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
                                         <Typography color="text.secondary">No work orders found.</Typography>
                                     </TableCell>
                                 </TableRow>
@@ -122,7 +161,7 @@ export default function WorkOrdersPage() {
             </Card>
 
             <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-                <DialogTitle fontWeight={700}>Initialize Work Order</DialogTitle>
+                <DialogTitle sx={{ fontWeight: 700 }}>Initialize Work Order</DialogTitle>
                 <DialogContent>
                     <Stack spacing={3} sx={{ mt: 1 }}>
                         <TextField

@@ -117,11 +117,11 @@ export default function MarketingPlan() {
 
             <Grid container spacing={3}>
                 {plans.length > 0 ? plans.map((plan) => (
-                    <Grid item xs={12} key={plan.id}>
+                    <Grid size={{ xs: 12 }} key={plan.id}>
                         <Card sx={{ borderRadius: 4 }}>
                             <CardContent sx={{ p: 3 }}>
                                 <Grid container spacing={4} alignItems="center">
-                                    <Grid item xs={12} md={4}>
+                                    <Grid size={{ xs: 12, md: 4 }}>
                                         <Stack direction="row" spacing={2} alignItems="center">
                                             <Box sx={{ p: 1.5, borderRadius: 3, bgcolor: 'primary.light', color: 'white' }}>
                                                 <PlanIcon />
@@ -133,21 +133,21 @@ export default function MarketingPlan() {
                                         </Stack>
                                     </Grid>
 
-                                    <Grid item xs={6} md={2}>
+                                    <Grid size={{ xs: 6, md: 2 }}>
                                         <Stack direction="row" spacing={1} alignItems="center" color="text.secondary">
                                             <BudgetIcon fontSize="small" />
                                             <Typography variant="body2" fontWeight={600}>${parseFloat(plan.budget).toLocaleString()}</Typography>
                                         </Stack>
                                     </Grid>
 
-                                    <Grid item xs={6} md={3}>
+                                    <Grid size={{ xs: 6, md: 3 }}>
                                         <Stack direction="row" spacing={1} alignItems="center" color="text.secondary">
                                             <DateIcon fontSize="small" />
                                             <Typography variant="body2">{plan.start_date} → {plan.end_date}</Typography>
                                         </Stack>
                                     </Grid>
 
-                                    <Grid item xs={6} md={2}>
+                                    <Grid size={{ xs: 6, md: 2 }}>
                                         <Chip
                                             label={plan.status}
                                             size="small"
@@ -157,7 +157,7 @@ export default function MarketingPlan() {
                                         />
                                     </Grid>
 
-                                    <Grid item xs={6} md={1}>
+                                    <Grid size={{ xs: 6, md: 1 }}>
                                         <Button variant="text" size="small">Details</Button>
                                     </Grid>
                                 </Grid>
@@ -182,7 +182,7 @@ export default function MarketingPlan() {
                         </Card>
                     </Grid>
                 )) : (
-                    <Grid item xs={12} textAlign="center" sx={{ py: 10 }}>
+                    <Grid size={{ xs: 12 }} textAlign="center" sx={{ py: 10 }}>
                         <PlanIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
                         <Typography variant="h6" color="text.secondary">No marketing plans found. Turn your strategies into action.</Typography>
                     </Grid>
@@ -219,7 +219,7 @@ export default function MarketingPlan() {
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                                 <TextField
                                     fullWidth
                                     type="number"
@@ -231,7 +231,7 @@ export default function MarketingPlan() {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     type="date"
@@ -241,7 +241,7 @@ export default function MarketingPlan() {
                                     onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     type="date"

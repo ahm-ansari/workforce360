@@ -128,7 +128,7 @@ export default function MarketingAnalysis() {
 
             <Grid container spacing={3}>
                 {analyses.length > 0 ? analyses.map((analysis) => (
-                    <Grid item xs={12} key={analysis.id}>
+                    <Grid size={{ xs: 12 }} key={analysis.id}>
                         <Card sx={{ borderRadius: 4, overflow: 'hidden' }}>
                             <Box sx={{ p: 2, bgcolor: '#f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Typography variant="h6" fontWeight={700}>{analysis.title}</Typography>
@@ -140,28 +140,28 @@ export default function MarketingAnalysis() {
                             <CardContent sx={{ p: 4 }}>
                                 <Grid container spacing={4}>
                                     {/* SWOT Grid */}
-                                    <Grid item xs={12} md={6}>
+                                    <Grid size={{ xs: 12, md: 6 }}>
                                         <Typography variant="subtitle1" fontWeight={700} color="primary" sx={{ mb: 2 }}>SWOT Analysis</Typography>
                                         <Grid container spacing={2}>
-                                            <Grid item xs={6}>
+                                            <Grid size={{ xs: 6 }}>
                                                 <Paper sx={{ p: 2, bgcolor: '#ecfdf5', height: '100%', border: '1px solid #d1fae5' }}>
                                                     <Typography variant="caption" fontWeight={700} color="#065f46" display="block">STRENGTHS</Typography>
                                                     <Typography variant="body2" sx={{ mt: 1 }}>{analysis.strengths || 'N/A'}</Typography>
                                                 </Paper>
                                             </Grid>
-                                            <Grid item xs={6}>
+                                            <Grid size={{ xs: 6 }}>
                                                 <Paper sx={{ p: 2, bgcolor: '#fff1f2', height: '100%', border: '1px solid #ffe4e6' }}>
                                                     <Typography variant="caption" fontWeight={700} color="#9f1239" display="block">WEAKNESSES</Typography>
                                                     <Typography variant="body2" sx={{ mt: 1 }}>{analysis.weaknesses || 'N/A'}</Typography>
                                                 </Paper>
                                             </Grid>
-                                            <Grid item xs={6}>
+                                            <Grid size={{ xs: 6 }}>
                                                 <Paper sx={{ p: 2, bgcolor: '#eff6ff', height: '100%', border: '1px solid #dbeafe' }}>
                                                     <Typography variant="caption" fontWeight={700} color="#1e40af" display="block">OPPORTUNITIES</Typography>
                                                     <Typography variant="body2" sx={{ mt: 1 }}>{analysis.opportunities || 'N/A'}</Typography>
                                                 </Paper>
                                             </Grid>
-                                            <Grid item xs={6}>
+                                            <Grid size={{ xs: 6 }}>
                                                 <Paper sx={{ p: 2, bgcolor: '#fffbeb', height: '100%', border: '1px solid #fef3c7' }}>
                                                     <Typography variant="caption" fontWeight={700} color="#92400e" display="block">THREATS</Typography>
                                                     <Typography variant="body2" sx={{ mt: 1 }}>{analysis.threats || 'N/A'}</Typography>
@@ -170,7 +170,7 @@ export default function MarketingAnalysis() {
                                         </Grid>
                                     </Grid>
 
-                                    <Grid item xs={12} md={6}>
+                                    <Grid size={{ xs: 12, md: 6 }}>
                                         <Stack spacing={3}>
                                             <Box>
                                                 <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Market Trends</Typography>
@@ -188,7 +188,7 @@ export default function MarketingAnalysis() {
                         </Card>
                     </Grid>
                 )) : (
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Paper sx={{ p: 8, textAlign: 'center', borderRadius: 4, border: '2px dashed #e2e8f0', bgcolor: 'transparent' }}>
                             <AnalysisIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
                             <Typography variant="h6" color="text.secondary">No analyses found. Start by performing a SWOT analysis.</Typography>
@@ -212,7 +212,7 @@ export default function MarketingAnalysis() {
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         />
                         <Grid container spacing={2}>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     multiline
@@ -222,7 +222,7 @@ export default function MarketingAnalysis() {
                                     onChange={(e) => setFormData({ ...formData, strengths: e.target.value })}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     multiline
@@ -232,7 +232,7 @@ export default function MarketingAnalysis() {
                                     onChange={(e) => setFormData({ ...formData, weaknesses: e.target.value })}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     multiline
@@ -242,7 +242,7 @@ export default function MarketingAnalysis() {
                                     onChange={(e) => setFormData({ ...formData, opportunities: e.target.value })}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={{ xs: 6 }}>
                                 <TextField
                                     fullWidth
                                     multiline

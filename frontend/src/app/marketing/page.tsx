@@ -115,7 +115,7 @@ export default function MarketingOverview() {
 
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 {modules.map((module) => (
-                    <Grid item xs={12} md={4} key={module.title}>
+                    <Grid size={{ xs: 12, md: 4 }} key={module.title}>
                         <Card
                             sx={{
                                 borderRadius: 4,
@@ -156,7 +156,7 @@ export default function MarketingOverview() {
             </Grid>
 
             <Grid container spacing={3}>
-                <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                     <Card sx={{ borderRadius: 4 }}>
                         <CardContent sx={{ p: 3 }}>
                             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
@@ -190,7 +190,7 @@ export default function MarketingOverview() {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Card sx={{ borderRadius: 4, height: '100%', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white' }}>
                         <CardContent sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
                             <Typography variant="h6" fontWeight={700} gutterBottom>Quick Insight</Typography>

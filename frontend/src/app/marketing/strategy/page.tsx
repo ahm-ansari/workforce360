@@ -16,7 +16,8 @@ import {
     DialogActions,
     MenuItem,
     Chip,
-    Avatar
+    Avatar,
+    Divider
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -98,7 +99,7 @@ export default function MarketingStrategy() {
 
             <Grid container spacing={3}>
                 {strategies.length > 0 ? strategies.map((strategy) => (
-                    <Grid item xs={12} md={6} key={strategy.id}>
+                    <Grid size={{ xs: 12, md: 6 }} key={strategy.id}>
                         <Card sx={{ borderRadius: 4, height: '100%' }}>
                             <CardContent sx={{ p: 3 }}>
                                 <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
@@ -144,7 +145,7 @@ export default function MarketingStrategy() {
                         </Card>
                     </Grid>
                 )) : (
-                    <Grid item xs={12} textAlign="center" sx={{ py: 10 }}>
+                    <Grid size={{ xs: 12 }} textAlign="center" sx={{ py: 10 }}>
                         <StrategyIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
                         <Typography variant="h6" color="text.secondary">Define your first marketing strategy to get started.</Typography>
                     </Grid>
