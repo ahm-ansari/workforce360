@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-dza68wz-v@@vc)4t7h*=!23ca6op2fwpt-tnbr38pi!bi)@p*-'
 
 # Google API Key
-GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY') # AIzaSyBzdZtCucpSBp21Cb_K-v-q6HFQ5Mgbnw4
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'apps.marketing',
     'apps.sales',
     'apps.operations',
+    'apps.cafm',
 ]
 
 MIDDLEWARE = [
