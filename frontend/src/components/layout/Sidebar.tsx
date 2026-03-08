@@ -30,6 +30,7 @@ import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
 
 interface NavItem {
     label: string;
@@ -122,6 +123,19 @@ const navSections: NavSection[] = [
     {
         title: 'FACILITY & SECURITY',
         items: [
+            {
+                label: 'CAFM',
+                path: '/cafm',
+                icon: <HomeWorkIcon />,
+                roles: ['admin', 'manager', 'hr'],
+                children: [
+                    { label: 'Overview', path: '/cafm', icon: <AssessmentIcon />, roles: ['admin', 'manager', 'hr'] },
+                    { label: 'Facilities', path: '/cafm/facilities', icon: <BusinessIcon />, roles: ['admin', 'manager', 'hr'] },
+                    { label: 'Spaces', path: '/cafm/spaces', icon: <DashboardIcon />, roles: ['admin', 'manager'] },
+                    { label: 'Assets', path: '/cafm/assets', icon: <StorageIcon />, roles: ['admin', 'manager', 'finance'] },
+                    { label: 'Maintenance', path: '/cafm/maintenance', icon: <EngineeringIcon />, roles: ['admin', 'manager', 'employee'] },
+                ]
+            },
             { label: 'Visitors', path: '/visitors', icon: <SecurityIcon />, roles: ['admin', 'security'] },
             { label: 'Companies', path: '/companies', icon: <BusinessIcon />, roles: ['admin', 'hr', 'security'] },
         ]
