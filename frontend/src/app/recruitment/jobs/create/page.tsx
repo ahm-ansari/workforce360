@@ -57,8 +57,9 @@ export default function CreateJob() {
                 requirements: res.data.requirements
             }));
         } catch (err) {
-            console.error('Error generating description:', err);
-            alert('Failed to generate description');
+            console.error('Error generating description:', err as any);
+            const errorMsg = (err as any).response?.data?.error || 'Failed to generate description';
+            alert(errorMsg);
         } finally {
             setGenerating(false);
         }
