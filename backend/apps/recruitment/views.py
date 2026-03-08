@@ -116,7 +116,14 @@ class JobViewSet(viewsets.ModelViewSet):
             })
 
         except Exception as e:
-            print(f"Google AI API Error: {str(e)}")
+            error_msg = str(e)
+            print(f"Google AI API Error: {error_msg}")
+            
+            if "leaked" in error_msg.lower():
+                return Response({
+                    'error': 'The Google AI API key has been reported as leaked and is blocked. Please update the API key in the configuration.'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
             return Response({'error': 'Failed to generate description'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['get'])
