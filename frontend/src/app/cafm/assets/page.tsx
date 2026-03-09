@@ -113,7 +113,12 @@ export default function AssetsList() {
                             {assets.length > 0 ? assets.map((asset: any) => (
                                 <TableRow key={asset.id} hover>
                                     <TableCell>
-                                        <Typography variant="subtitle2" fontWeight={700}>
+                                        <Typography
+                                            variant="subtitle2"
+                                            fontWeight={700}
+                                            sx={{ cursor: 'pointer', '&:hover': { color: 'primary.main' } }}
+                                            onClick={() => router.push(`/cafm/assets/${asset.id}`)}
+                                        >
                                             {asset.name}
                                         </Typography>
                                     </TableCell>
