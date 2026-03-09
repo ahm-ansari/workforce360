@@ -7,6 +7,8 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 # Set up Django
+import dotenv
+dotenv.load_dotenv()
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
