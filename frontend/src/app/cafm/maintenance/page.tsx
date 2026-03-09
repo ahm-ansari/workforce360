@@ -124,7 +124,12 @@ export default function MaintenanceList() {
                             {requests.length > 0 ? requests.map((request: any) => (
                                 <TableRow key={request.id} hover>
                                     <TableCell>
-                                        <Typography variant="subtitle2" fontWeight={700}>
+                                        <Typography
+                                            variant="subtitle2"
+                                            fontWeight={700}
+                                            sx={{ cursor: 'pointer', '&:hover': { color: 'primary.main' } }}
+                                            onClick={() => router.push(`/cafm/maintenance/${request.id}`)}
+                                        >
                                             {request.title}
                                         </Typography>
                                     </TableCell>
