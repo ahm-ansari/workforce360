@@ -10,6 +10,8 @@ import {
     Stack,
     Button,
     LinearProgress,
+    Paper,
+    Chip,
 } from '@mui/material';
 import {
     MoreVert as MoreVertIcon,
@@ -32,6 +34,7 @@ export default function CAFMOverview() {
         assets: 0,
         maintenance: 0
     });
+    const [criticalRequests, setCriticalRequests] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -51,6 +54,11 @@ export default function CAFMOverview() {
                     assets: assetsRes.data.length,
                     maintenance: maintenanceRes.data.length
                 });
+
+                setCriticalRequests(maintenanceRes.data.filter((r: any) =>
+                    r.priority === 'CRITICAL' || r.priority === 'HIGH'
+                ).slice(0, 5));
+
             } catch (error) {
                 console.error('Error fetching CAFM stats:', error);
             } finally {
@@ -111,7 +119,7 @@ export default function CAFMOverview() {
                 <Button
                     variant="contained"
                     startIcon={<AddIcon />}
-                    onClick={() => router.push('/cafm/maintenance')}
+                    onClick={() => router.push('/cafm/maintenance/new')}
                     sx={{ borderRadius: 2, px: 3, py: 1 }}
                 >
                     New Request
@@ -166,14 +174,47 @@ export default function CAFMOverview() {
                     <Card sx={{ borderRadius: 4, height: '100%' }}>
                         <CardContent sx={{ p: 3 }}>
                             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                                <Typography variant="h6" fontWeight={700}>Critical Maintenance Requests</Typography>
-                                <Button size="small">View All</Button>
+                                <Typography variant="h6" fontWeight={700}>Priority Maintenance</Typography>
+                                <Button size="small" onClick={() => router.push('/cafm/maintenance')}>View All</Button>
                             </Stack>
-                            <Box sx={{ bgcolor: '#f1f5f9', p: 4, borderRadius: 3, textAlign: 'center' }}>
-                                <MaintenanceIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 2 }} />
-                                <Typography variant="h6" color="text.primary">No Critical Issues</Typography>
-                                <Typography variant="body2" color="text.secondary">All systems and facilities are running optimally.</Typography>
-                            </Box>
+
+                            {criticalRequests.length > 0 ? (
+                                <Stack spacing={2}>
+                                    {criticalRequests.map((req: any) => (
+                                        <Paper
+                                            key={req.id}
+                                            variant="outlined"
+                                            sx={{
+                                                p: 2,
+                                                borderRadius: 2,
+                                                cursor: 'pointer',
+                                                '&:hover': { bgcolor: 'action.hover' }
+                                            }}
+                                            onClick={() => router.push(`/cafm/maintenance/${req.id}`)}
+                                        >
+                                            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                                <Box>
+                                                    <Typography variant="subtitle2" fontWeight={700}>{req.title}</Typography>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        {req.facility_name} • {req.asset_name || 'General'}
+                                                    </Typography>
+                                                </Box>
+                                                <Chip
+                                                    label={req.priority}
+                                                    size="small"
+                                                    color={req.priority === 'CRITICAL' ? 'error' : 'warning'}
+                                                />
+                                            </Stack>
+                                        </Paper>
+                                    ))}
+                                </Stack>
+                            ) : (
+                                <Box sx={{ bgcolor: '#f1f5f9', p: 4, borderRadius: 3, textAlign: 'center' }}>
+                                    <MaintenanceIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 2 }} />
+                                    <Typography variant="h6" color="text.primary">No Priority Issues</Typography>
+                                    <Typography variant="body2" color="text.secondary">All systems and facilities are running optimally.</Typography>
+                                </Box>
+                            )}
                         </CardContent>
                     </Card>
                 </Grid>
