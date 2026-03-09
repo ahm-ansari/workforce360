@@ -78,3 +78,13 @@ class MaintenanceRequest(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.facility.name}"
+
+class MaintenanceLog(models.Model):
+    request = models.ForeignKey(MaintenanceRequest, on_delete=models.CASCADE, related_name='logs')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    status_change = models.CharField(max_length=50, blank=True)
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Log for {self.request.title} at {self.created_at}"
