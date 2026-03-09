@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Facility, Space, Asset, MaintenanceRequest
+from .models import Facility, Space, Asset, MaintenanceRequest, MaintenanceLog
 
 class FacilitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,9 +16,17 @@ class SpaceSerializer(serializers.ModelSerializer):
 class AssetSerializer(serializers.ModelSerializer):
     facility_name = serializers.CharField(source='facility.name', read_only=True)
     space_name = serializers.CharField(source='space.name', read_only=True)
+    maintenance_history = MaintenanceRequestSerializer(source='maintenance_requests', many=True, read_only=True)
 
     class Meta:
         model = Asset
+        fields = '__all__'
+
+class MaintenanceLogSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.get_full_name', read_only=True, default='')
+
+    class Meta:
+        model = MaintenanceLog
         fields = '__all__'
 
 class MaintenanceRequestSerializer(serializers.ModelSerializer):
@@ -27,6 +35,7 @@ class MaintenanceRequestSerializer(serializers.ModelSerializer):
     asset_name = serializers.CharField(source='asset.name', read_only=True)
     reported_by_name = serializers.CharField(source='reported_by.get_full_name', read_only=True, default='')
     assigned_to_name = serializers.CharField(source='assigned_to.user.get_full_name', read_only=True, default='')
+    logs = MaintenanceLogSerializer(many=True, read_only=True)
 
     class Meta:
         model = MaintenanceRequest
