@@ -33,18 +33,11 @@ export default function TeamAttendance() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [viewMode, setViewMode] = useState<'table' | 'calendar'>('table');
-    const [currentMonth, setCurrentMonth] = useState<Date | null>(null);
-
-    useEffect(() => {
-        setCurrentMonth(new Date());
-    }, []);
-
-    if (!currentMonth) return null;
-
+    const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
     useEffect(() => {
         fetchAttendance();
-    }, [page, filters.date, filters.status, viewMode, currentMonth]);
+    }, [page, filters.date, filters.status, filters.employee, viewMode, currentMonth]);
 
     const fetchAttendance = async () => {
         try {
@@ -71,6 +64,10 @@ export default function TeamAttendance() {
 
             if (filters.status) {
                 url += `&status=${filters.status}`;
+            }
+
+            if (filters.employee) {
+                url += `&search=${filters.employee}`;
             }
 
             const response = await api.get(url);
@@ -118,6 +115,14 @@ export default function TeamAttendance() {
                             </Button>
                         </Box>
 
+                        <TextField
+                            placeholder="Search Employee..."
+                            value={filters.employee}
+                            onChange={(e) => setFilters({ ...filters, employee: e.target.value })}
+                            size="small"
+                            sx={{ bgcolor: '#fff', width: 200 }}
+                        />
+
                         {viewMode === 'table' && (
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <DatePicker
@@ -137,13 +142,14 @@ export default function TeamAttendance() {
                             value={filters.status}
                             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                             size="small"
-                            sx={{ bgcolor: '#fff', width: 150 }}
+                            sx={{ bgcolor: '#fff', width: 140 }}
                         >
                             <MenuItem value="">All Statuses</MenuItem>
                             <MenuItem value="PRESENT">Present</MenuItem>
                             <MenuItem value="ABSENT">Absent</MenuItem>
                             <MenuItem value="LATE">Late</MenuItem>
                             <MenuItem value="ON_LEAVE">On Leave</MenuItem>
+                            <MenuItem value="HALF_DAY">Half Day</MenuItem>
                         </TextField>
                     </Grid>
                 </Grid>
