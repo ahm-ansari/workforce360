@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -18,9 +18,10 @@ from .serializers import (
 class AttendanceViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Attendance.objects.none() # Required for DjangoModelPermissions and router introspection
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['employee', 'date', 'status', 'employee__department']
-    ordering_fields = ['date', 'check_in']
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_fields = ['employee', 'date', 'status', 'employee__department', 'employee__designation']
+    search_fields = ['employee__user__first_name', 'employee__user__last_name', 'employee__user__username']
+    ordering_fields = ['date', 'check_in', 'work_hours']
     ordering = ['-date']
 
     def get_queryset(self):
@@ -64,7 +65,7 @@ class AttendanceViewSet(viewsets.ModelViewSet):
         except AttributeError:
              # Handle case where user is admin or has no employee profile
              # For now, let it raise or handle gracefully if critical
-            raise serializer.ValidationError({"error": "User does not have an associated employee profile."})
+            raise serializers.ValidationError({"error": "User does not have an associated employee profile."})
 
     # Removed deprecated check_in action in favor of standard create
 
@@ -138,9 +139,10 @@ class LeaveViewSet(viewsets.ModelViewSet):
     queryset = Leave.objects.select_related('employee', 'leave_type', 'approved_by').all()
     serializer_class = LeaveSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['employee', 'status', 'leave_type']
-    ordering_fields = ['start_date', 'created_at']
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_fields = ['employee', 'status', 'leave_type', 'employee__department', 'employee__designation']
+    search_fields = ['employee__user__first_name', 'employee__user__last_name', 'reason']
+    ordering_fields = ['start_date', 'end_date', 'days_count', 'created_at']
     ordering = ['-created_at']
 
     def get_serializer_class(self):
