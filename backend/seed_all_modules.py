@@ -49,7 +49,7 @@ def seed_all():
         for _ in range(20):
             Notification.objects.create(
                 user=random.choice(users),
-                title=f"Notification {random.randint(1, 100)}",
+                title=f"Notification {random.randint(1, 10000)}",
                 message="Sample notification message.",
                 notification_type=random.choice(['TASK', 'LEAVE', 'ATTENDANCE', 'DOCUMENT', 'PAYROLL', 'RECRUITMENT', 'VISITOR', 'GENERAL']),
                 is_read=random.choice([True, False])
@@ -60,13 +60,14 @@ def seed_all():
     # 2. HR - Documents
     try:
         print("Seeding HR Documents...")
+        Document.objects.all().delete()
         doc_categories = list(DocumentCategory.objects.all())
         if doc_categories:
             for _ in range(15):
                 Document.objects.create(
                     employee=random.choice(employees),
                     category=random.choice(doc_categories),
-                    title=f"Document {random.randint(1, 1000)}",
+                    title=f"Doc-{random.randint(100, 999)}",
                     description="Sample HR document description."
                 )
     except Exception as e:
@@ -75,6 +76,7 @@ def seed_all():
     # 3. Tasks - Activity Logs
     try:
         print("Seeding Task Activity Logs...")
+        ActivityLog.objects.all().delete()
         tasks = list(Task.objects.all())
         if tasks:
             for _ in range(30):
@@ -110,7 +112,7 @@ def seed_all():
         for title in job_titles:
             j = Job.objects.create(
                 title=title,
-                description="Complete job description with requirements and responsibilities.",
+                description="Complete job description.",
                 department=random.choice(departments),
                 job_category=random.choice(categories),
                 status='PUBLISHED',
@@ -144,7 +146,7 @@ def seed_all():
     except Exception as e:
         print(f"Error seeding Recruitment: {e}")
 
-    # 5. Clients & Visitors
+    # 5. Clients
     try:
         print("Seeding Client Base...")
         client_names = ['TechCorp Industries', 'Global Logistics Ltd', 'Innovate Solutions', 'Mainstream Energy']
@@ -168,34 +170,48 @@ def seed_all():
     except Exception as e:
         print(f"Error seeding Clients: {e}")
 
+    # 6. Visitors
     try:
         print("Seeding Visitors Module...")
+        GateEntry.objects.all().delete()
+        Vehicle.objects.all().delete()
         Visitor.objects.all().delete()
         Company.objects.all().delete()
         
         companies = []
         for name in ['External Partners', 'Service Providers', 'Local Vendors']:
-            comp = Company.objects.create(name=name, address="Industrial Area")
+            comp = Company.objects.create(name=name, address="Industrial Area", phone="1234567890")
             companies.append(comp)
             
-        for _ in range(5):
-            Visitor.objects.create(
-                name=f"Visitor {random.randint(1, 100)}",
-                phone=f"+91 {random.randint(7000, 9999)}000000",
-                company=random.choice(companies),
-                company_name=random.choice(companies).name,
-                purpose_of_visit="Business Meeting",
-                status='APPROVED'
+        for i in range(5):
+            comp = random.choice(companies)
+            v = Visitor.objects.create(
+                name=f"Visitor {random.randint(1, 1000)}",
+                phone=f"+91 {random.randint(7000, 9999)}000{i}",
+                company=comp.name,
+                purpose_of_visit="Business meeting",
+                id_proof_type='PASSPORT',
+                id_proof_number=f"P-{random.randint(10000, 99999)}"
+            )
+            GateEntry.objects.create(
+                visitor=v,
+                entry_type='VISITOR',
+                gate_number='1'
+            )
+            Vehicle.objects.create(
+                visitor=v,
+                vehicle_number=f"MH-{random.randint(10, 99)}-AB-{random.randint(1000, 9999)}",
+                vehicle_type='CAR'
             )
     except Exception as e:
         print(f"Error seeding Visitors: {e}")
 
-    # 6. Projects
+    # 7. Projects
     try:
         print("Seeding Projects Module...")
+        ProjectMilestone.objects.all().delete()
+        Project.objects.all().delete()
         all_clients = list(Client.objects.all())
-        if not all_clients:
-             raise Exception("No clients found for projects")
              
         projects = []
         for i in range(5):
@@ -205,7 +221,7 @@ def seed_all():
                 start_date=date.today() - timedelta(days=random.randint(10, 50)),
                 end_date=date.today() + timedelta(days=90),
                 status=random.choice(['PLANNING', 'IN_PROGRESS', 'COMPLETED']),
-                client=random.choice(all_clients)
+                client=random.choice(all_clients) if all_clients else None
             )
             projects.append(p)
             for j in range(3):
@@ -219,30 +235,36 @@ def seed_all():
     except Exception as e:
         print(f"Error seeding Projects: {e}")
 
-    # 7. Outsourcing
+    # 8. Outsourcing
     try:
         print("Seeding Outsourcing Module...")
+        StaffingContract.objects.all().delete()
+        StaffingRequest.objects.all().delete()
         for _ in range(5):
             req = StaffingRequest.objects.create(
-                title=f"Request {random.randint(1, 100)}",
+                title=f"Req-{random.randint(1000, 9999)}",
                 description="Staffing needs.",
                 status=random.choice(['PENDING', 'APPROVED', 'FULLFILLED'])
             )
             StaffingContract.objects.create(
                 request=req,
-                contract_number=f"CONT-{random.randint(1000, 9999)}",
+                contract_number=f"CONT-{random.randint(10000, 99999)}",
                 start_date=date.today(),
                 end_date=date.today() + timedelta(days=180)
             )
     except Exception as e:
         print(f"Error seeding Outsourcing: {e}")
 
-    # 8. Marketing
+    # 9. Marketing
     try:
         print("Seeding Marketing Module...")
+        MarketingCampaign.objects.all().delete()
+        MarketingPlan.objects.all().delete()
+        MarketingStrategy.objects.all().delete()
+        MarketingAnalysis.objects.all().delete()
         for _ in range(3):
             analysis = MarketingAnalysis.objects.create(
-                title=f"Analysis {random.randint(1, 100)}",
+                title=f"Market Analysis {random.randint(1, 1000)}",
                 strengths="High brand value",
                 created_by=random.choice(users)
             )
@@ -264,7 +286,7 @@ def seed_all():
             )
             MarketingCampaign.objects.create(
                 plan=plan,
-                name=f"Campaign {random.randint(1, 100)}",
+                name=f"Campaign {random.randint(1, 1000)}",
                 platform="LinkedIn",
                 budget_allocated=Decimal('5000.00'),
                 start_date=date.today(),
@@ -273,15 +295,23 @@ def seed_all():
     except Exception as e:
         print(f"Error seeding Marketing: {e}")
 
-    # 9. Sales
+    # 10. Sales
     try:
         print("Seeding Sales Module...")
+        Payment.objects.all().delete()
+        InvoiceItem.objects.all().delete()
+        Invoice.objects.all().delete()
+        WorkOrder.objects.all().delete()
+        QuotationItem.objects.all().delete()
+        Quotation.objects.all().delete()
+        
         all_clients = list(Client.objects.all())
         for i in range(5):
             if not all_clients: break
             client = random.choice(all_clients)
+            q_num = f"QT-{2025000 + random.randint(1000, 9999)}"
             q = Quotation.objects.create(
-                quotation_number=f"QT-{2025000 + i}",
+                quotation_number=q_num,
                 client=client,
                 date=date.today(),
                 expiry_date=date.today() + timedelta(days=30),
@@ -298,19 +328,21 @@ def seed_all():
                 unit_price=Decimal('10000.00'),
                 total=Decimal('10000.00')
             )
+            wo_num = f"WO-{2025000 + random.randint(1000, 9999)}"
             wo = WorkOrder.objects.create(
                 quotation=q,
                 client=client,
-                work_order_number=f"WO-{2025000 + i}",
+                work_order_number=wo_num,
                 start_date=date.today(),
                 status='PENDING',
-                description="Service implementation",
+                description="Implementation",
                 total_value=q.total_amount
             )
+            inv_num = f"INV-{2025000 + random.randint(1000, 9999)}"
             inv = Invoice.objects.create(
                 work_order=wo,
                 client=client,
-                invoice_number=f"INV-{2025000 + i}",
+                invoice_number=inv_num,
                 issue_date=date.today(),
                 due_date=date.today() + timedelta(days=30),
                 status='PAID',
@@ -334,15 +366,16 @@ def seed_all():
     except Exception as e:
         print(f"Error seeding Sales: {e}")
 
-    # 10. CAFM logs
+    # 11. CAFM logs
     try:
         print("Seeding CAFM Maintenance Logs...")
+        MaintenanceLog.objects.all().delete()
         m_requests = list(MaintenanceRequest.objects.all())
         for r in m_requests:
             MaintenanceLog.objects.create(
                 request=r,
                 user=random.choice(users),
-                comment="Normal log entry."
+                comment="Log entry generated during seeding."
             )
     except Exception as e:
         print(f"Error seeding CAFM logs: {e}")
