@@ -13,15 +13,6 @@ class SpaceSerializer(serializers.ModelSerializer):
         model = Space
         fields = '__all__'
 
-class AssetSerializer(serializers.ModelSerializer):
-    facility_name = serializers.CharField(source='facility.name', read_only=True)
-    space_name = serializers.CharField(source='space.name', read_only=True)
-    maintenance_history = MaintenanceRequestSerializer(source='maintenance_requests', many=True, read_only=True)
-
-    class Meta:
-        model = Asset
-        fields = '__all__'
-
 class MaintenanceLogSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.get_full_name', read_only=True, default='')
 
@@ -39,4 +30,13 @@ class MaintenanceRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MaintenanceRequest
+        fields = '__all__'
+
+class AssetSerializer(serializers.ModelSerializer):
+    facility_name = serializers.CharField(source='facility.name', read_only=True)
+    space_name = serializers.CharField(source='space.name', read_only=True)
+    maintenance_history = MaintenanceRequestSerializer(source='maintenance_requests', many=True, read_only=True)
+
+    class Meta:
+        model = Asset
         fields = '__all__'
