@@ -104,9 +104,11 @@ export default function AttendancePage() {
             });
             setEmployeeStatuses(initialStatuses);
             setGlobalStatus('PRESENT');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to fetch employees:', error);
-            // Fallback or alert
+            if (error.response?.status === 404) {
+                console.warn('Employees endpoint not found or returns 404');
+            }
         } finally {
             setLoadingEmployees(false);
         }
@@ -195,17 +197,17 @@ export default function AttendancePage() {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h4">Attendance</Typography>
 
-                {tabValue === 0 && (
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        {isManager && (
-                            <Button
-                                variant="outlined"
-                                startIcon={<GroupAddIcon />}
-                                onClick={() => setOpenBulkDialog(true)}
-                            >
-                                Bulk Generate
-                            </Button>
-                        )}
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    {isManager && (
+                        <Button
+                            variant="outlined"
+                            startIcon={<GroupAddIcon />}
+                            onClick={() => setOpenBulkDialog(true)}
+                        >
+                            Bulk Generate
+                        </Button>
+                    )}
+                    {tabValue === 0 && (
                         <Button
                             variant="contained"
                             startIcon={<AccessTimeIcon />}
@@ -215,8 +217,8 @@ export default function AttendancePage() {
                         >
                             {todayRecord?.check_out ? 'Completed' : (todayRecord && todayRecord.status !== 'ABSENT') ? 'Check Out' : 'Check In'}
                         </Button>
-                    </Box>
-                )}
+                    )}
+                </Box>
             </Box>
 
             {isManager && (
@@ -322,7 +324,7 @@ export default function AttendancePage() {
                                         {employees.map((emp) => (
                                             <TableRow key={emp.id}>
                                                 <TableCell>
-                                                    {emp.user_details.first_name} {emp.user_details.last_name}
+                                                    {emp.user_details ? `${emp.user_details.first_name} ${emp.user_details.last_name}` : `Emp ID: ${emp.id}`}
                                                 </TableCell>
                                                 <TableCell>{emp.department?.name || '-'}</TableCell>
                                                 <TableCell sx={{ minWidth: 150 }}>
