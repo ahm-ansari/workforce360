@@ -1,35 +1,24 @@
-import MySQLdb
+from django.db import connection
 
-# Connect to database
-conn = MySQLdb.connect(
-    host='localhost',
-    user='root',
-    password='',
-    database='workforce360'
-)
+def drop_recruitment():
+    with connection.cursor() as cursor:
+        # Disable foreign key checks to drop tables with dependencies
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+        
+        cursor.execute("SHOW TABLES LIKE 'recruitment_%';")
+        tables = cursor.fetchall()
+        for (table_name,) in tables:
+            print(f"Dropping {table_name}")
+            cursor.execute(f"DROP TABLE IF EXISTS {table_name};")
+            
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+        print(f"Dropped {len(tables)} tables.")
 
-cursor = conn.cursor()
-
-# Drop old recruitment tables
-tables_to_drop = [
-    'recruitment_interview',
-    'recruitment_candidate',
-    'recruitment_job',
-    'recruitment_jobposting',
-    'recruitment_candidateapplication',
-    'recruitment_interviewschedule',
-]
-
-print("Dropping old recruitment tables...")
-for table in tables_to_drop:
-    try:
-        cursor.execute(f"DROP TABLE IF EXISTS {table}")
-        print(f"  Dropped {table}")
-    except Exception as e:
-        print(f"  Error dropping {table}: {e}")
-
-conn.commit()
-conn.close()
-print("\nOld tables dropped successfully!")
-print("Now run: python manage.py makemigrations recruitment")
-print("Then run: python manage.py migrate recruitment")
+if __name__ == "__main__":
+    import os
+    import django
+    import dotenv
+    dotenv.load_dotenv()
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+    django.setup()
+    drop_recruitment()
