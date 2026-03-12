@@ -5,6 +5,17 @@ from .serializers import UserSerializer, RoleSerializer, NotificationSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Sum, Count, Q
+from apps.employees.models import Employee, Department
+from apps.tasks.models import Task
+from apps.hr.models import Leave
+from apps.recruitment.models import Job, Candidate
+from apps.visitors.models import Visitor
+from apps.sales.models import Invoice, Quotation
+from apps.cafm.models import MaintenanceRequest
+from apps.projects.models import Project
+from django.utils import timezone
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -47,3 +58,74 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def unread_count(self, request):
         count = Notification.objects.filter(user=request.user, is_read=False).count()
         return Response({'count': count})
+
+class DashboardViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        """Get summarized stats for all modules"""
+        today = timezone.now().date()
+        last_30_days = today - timedelta(days=30)
+
+        # Employee & Dept Stats
+        total_employees = Employee.objects.count()
+        dept_stats = Department.objects.annotate(employee_count=Count('employee')).values('name', 'employee_count')
+
+        # Task Stats
+        task_stats = {
+            'pending': Task.objects.exclude(status='COMPLETED').count(),
+            'completed': Task.objects.filter(status='COMPLETED').count(),
+        }
+
+        # HR Stats
+        leave_stats = {
+            'pending': Leave.objects.filter(status='PENDING').count(),
+            'on_leave': Leave.objects.filter(status='APPROVED', start_date__lte=today, end_date__gte=today).count(),
+        }
+
+        # Recruitment Stats
+        job_stats = {
+            'active': Job.objects.filter(status='PUBLISHED').count(),
+            'total_candidates': Candidate.objects.count(),
+        }
+
+        # Sales Stats
+        revenue_stats = Invoice.objects.filter(status='PAID').aggregate(total=Sum('total_amount'))['total'] or 0
+        quotation_stats = {
+            'pending': Quotation.objects.filter(status='SENT').count(),
+            'accepted': Quotation.objects.filter(status='ACCEPTED').count(),
+        }
+
+        # CAFM Stats
+        cafm_stats = {
+            'open_requests': MaintenanceRequest.objects.exclude(status='CLOSED').count(),
+            'by_priority': MaintenanceRequest.objects.values('priority').annotate(count=Count('id')),
+        }
+
+        # Project Stats
+        project_stats = {
+            'active': Project.objects.filter(status='IN_PROGRESS').count(),
+            'planning': Project.objects.filter(status='PLANNING').count(),
+        }
+
+        # Visitors
+        visitor_stats = {
+            'active_today': Visitor.objects.filter(check_in_time__date=today).count(),
+        }
+
+        return Response({
+            'employees': {
+                'total': total_employees,
+                'by_department': list(dept_stats)
+            },
+            'tasks': task_stats,
+            'hr': leave_stats,
+            'recruitment': job_stats,
+            'sales': {
+                'total_revenue': revenue_stats,
+                'quotations': quotation_stats
+            },
+            'cafm': cafm_stats,
+            'projects': project_stats,
+            'visitors': visitor_stats
+        })
