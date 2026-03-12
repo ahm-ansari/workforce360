@@ -34,4 +34,5 @@ urlpatterns = [
     path('api/sales/', include('apps.sales.urls')),
     path('api/operations/', include('apps.operations.urls')),
     path('api/cafm/', include('apps.cafm.urls')),
+    path('api/analysis/', include('apps.analysis.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
