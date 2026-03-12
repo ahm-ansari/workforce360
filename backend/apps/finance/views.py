@@ -36,6 +36,40 @@ class PayrollViewSet(viewsets.ModelViewSet):
             )
         return Response({"detail": "Payroll generated."}, status=status.HTTP_201_CREATED)
 
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        """Get financial summaries for dashboard"""
+        from django.db.models import Sum
+        month = request.query_params.get('month')
+        year = request.query_params.get('year')
+        
+        queryset = self.queryset
+        if month: queryset = queryset.filter(month=month)
+        if year: queryset = queryset.filter(year=year)
+        
+        total_payroll = queryset.aggregate(total=Sum('net_salary'))['total'] or 0
+        status_counts = queryset.values('status').annotate(count=Sum('net_salary'))
+        
+        reimb_pending = Reimbursement.objects.filter(status='PENDING').aggregate(total=Sum('amount'))['total'] or 0
+        reimb_approved = Reimbursement.objects.filter(status='APPROVED').aggregate(total=Sum('amount'))['total'] or 0
+        
+        tx_income = Transaction.objects.filter(type='INCOME').aggregate(total=Sum('amount'))['total'] or 0
+        tx_expense = Transaction.objects.filter(type='EXPENSE').aggregate(total=Sum('amount'))['total'] or 0
+        
+        return Response({
+            'total_payroll': total_payroll,
+            'status_breakdown': list(status_counts),
+            'reimbursements': {
+                'pending': reimb_pending,
+                'approved': reimb_approved
+            },
+            'cash_flow': {
+                'income': tx_income,
+                'expense': tx_expense,
+                'balance': tx_income - tx_expense
+            }
+        })
+
 class ReimbursementViewSet(viewsets.ModelViewSet):
     queryset = Reimbursement.objects.select_related('employee').all()
     serializer_class = ReimbursementSerializer
