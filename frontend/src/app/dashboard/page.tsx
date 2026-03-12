@@ -12,6 +12,8 @@ import {
     ListItem,
     ListItemText,
     Chip,
+    Divider,
+    IconButton,
 } from '@mui/material';
 import PeopleIcon from '@mui/icons-material/People';
 import TaskIcon from '@mui/icons-material/Task';
@@ -19,74 +21,52 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import EventIcon from '@mui/icons-material/Event';
 import WorkIcon from '@mui/icons-material/Work';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import ConstructionIcon from '@mui/icons-material/Construction';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import api from '@/lib/axios';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell,
+} from 'recharts';
 
-interface DashboardStats {
-    totalEmployees: number;
-    activeTasks: number;
-    pendingLeaves: number;
-    activeJobs: number;
-    activeVisitors: number;
-    pendingReimbursements: number;
-}
-
-interface RecentActivity {
-    id: number;
-    type: string;
-    title: string;
-    description: string;
-    timestamp: string;
-}
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 export default function Dashboard() {
-    const [stats, setStats] = useState<DashboardStats>({
-        totalEmployees: 0,
-        activeTasks: 0,
-        pendingLeaves: 0,
-        activeJobs: 0,
-        activeVisitors: 0,
-        pendingReimbursements: 0,
-    });
-    const [recentTasks, setRecentTasks] = useState<any[]>([]);
-    const [recentLeaves, setRecentLeaves] = useState<any[]>([]);
+    const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [recentTasks, setRecentTasks] = useState<any[]>([]);
 
-    const [departmentStats, setDepartmentStats] = useState<Record<string, number>>({});
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [dashRes, tasksRes] = await Promise.all([
+                api.get('users/dashboard/'),
+                api.get('tasks/tasks/'),
+            ]);
+            setData(dashRes.data);
+            setRecentTasks(tasksRes.data?.slice(0, 5) || []);
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [statsRes, tasksRes, leavesRes, jobsRes, visitorsRes, reimbursementsRes] = await Promise.all([
-                    api.get('employees/stats/').catch(() => ({ data: { total_employees: 0, by_department: {} } })),
-                    api.get('tasks/tasks/').catch(() => ({ data: [] })),
-                    api.get('hr/leaves/').catch(() => ({ data: [] })),
-                    api.get('recruitment/jobs/').catch(() => ({ data: [] })),
-                    api.get('visitors/visitors/?checked_in=true').catch(() => ({ data: [] })),
-                    api.get('finance/reimbursements/').catch(() => ({ data: [] })),
-                ]);
-
-                setStats({
-                    totalEmployees: statsRes.data?.total_employees || 0,
-                    activeTasks: tasksRes.data?.filter((t: any) => t.status !== 'COMPLETED').length || 0,
-                    pendingLeaves: leavesRes.data?.filter((l: any) => l.status === 'PENDING').length || 0,
-                    activeJobs: jobsRes.data?.filter((j: any) => j.status === 'PUBLISHED').length || 0,
-                    activeVisitors: visitorsRes.data?.length || 0,
-                    pendingReimbursements: reimbursementsRes.data?.filter((r: any) => r.status === 'PENDING').length || 0,
-                });
-
-                setDepartmentStats(statsRes.data?.by_department || {});
-                setRecentTasks(tasksRes.data?.slice(0, 5) || []);
-                setRecentLeaves(leavesRes.data?.slice(0, 5) || []);
-            } catch (error) {
-                console.error('Error fetching dashboard data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchData();
     }, []);
 
-    if (loading) {
+    if (loading && !data) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
                 <CircularProgress />
@@ -95,156 +75,197 @@ export default function Dashboard() {
     }
 
     const statCards = [
-        { title: 'Total Employees', value: stats.totalEmployees, icon: <PeopleIcon />, color: '#1976d2' },
-        { title: 'Active Tasks', value: stats.activeTasks, icon: <TaskIcon />, color: '#2e7d32' },
-        { title: 'Pending Leaves', value: stats.pendingLeaves, icon: <EventIcon />, color: '#ed6c02' },
-        { title: 'Active Jobs', value: stats.activeJobs, icon: <WorkIcon />, color: '#9c27b0' },
-        { title: 'Active Visitors', value: stats.activeVisitors, icon: <PersonAddIcon />, color: '#d32f2f' },
-        { title: 'Pending Reimbursements', value: stats.pendingReimbursements, icon: <AttachMoneyIcon />, color: '#0288d1' },
+        { title: 'Total Employees', value: data?.employees?.total || 0, icon: <PeopleIcon />, color: '#1976d2' },
+        { title: 'Revenue', value: `$${data?.sales?.total_revenue?.toLocaleString() || 0}`, icon: <AttachMoneyIcon />, color: '#2e7d32' },
+        { title: 'Pending Tasks', value: data?.tasks?.pending || 0, icon: <TaskIcon />, color: '#ed6c02' },
+        { title: 'Active Jobs', value: data?.recruitment?.active || 0, icon: <WorkIcon />, color: '#9c27b0' },
+        { title: 'Maintenance', value: data?.cafm?.open_requests || 0, icon: <ConstructionIcon />, color: '#d32f2f' },
+        { title: 'Active Projects', value: data?.projects?.active || 0, icon: <BusinessCenterIcon />, color: '#0288d1' },
     ];
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'PENDING':
-                return 'warning';
-            case 'APPROVED':
-                return 'success';
-            case 'REJECTED':
-                return 'error';
-            case 'COMPLETED':
-                return 'success';
-            case 'IN_PROGRESS':
-                return 'info';
-            default:
-                return 'default';
-        }
-    };
+    const deptData = data?.employees?.by_department?.map((d: any) => ({
+        name: d.name,
+        value: d.employee_count
+    })) || [];
+
+    const taskChartData = [
+        { name: 'Pending', count: data?.tasks?.pending || 0 },
+        { name: 'Completed', count: data?.tasks?.completed || 0 },
+    ];
 
     return (
-        <Box sx={{ p: 3 }}>
-            <Typography variant="h4" gutterBottom>
-                Dashboard Overview
-            </Typography>
+        <Box sx={{ p: 3, bgcolor: '#f8f9fa', minHeight: '100vh' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                <Typography variant="h4" fontWeight="600" color="primary">
+                    Executive Dashboard
+                </Typography>
+                <IconButton onClick={fetchData} color="primary">
+                    <RefreshIcon />
+                </IconButton>
+            </Box>
+
             {/* Statistics Cards */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 {statCards.map((stat, index) => (
-                    <Grid size={{ xs: 12, sm: 6, md: 2 }} key={index}>
-                        <Card sx={{ height: '100%', bgcolor: stat.color, color: 'white' }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }} key={index}>
+                        <Card sx={{
+                            height: '100%',
+                            borderRadius: '12px',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                            transition: 'transform 0.2s',
+                            '&:hover': { transform: 'translateY(-5px)' }
+                        }}>
                             <CardContent>
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                    <Box>
-                                        <Typography variant="h3" fontWeight="bold">
-                                            {stat.value}
-                                        </Typography>
-                                        <Typography variant="body1" sx={{ mt: 1 }}>
-                                            {stat.title}
-                                        </Typography>
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                        <Box sx={{
+                                            p: 1,
+                                            borderRadius: '8px',
+                                            bgcolor: `${stat.color}15`,
+                                            color: stat.color,
+                                            display: 'flex',
+                                            alignItems: 'center'
+                                        }}>
+                                            {stat.icon}
+                                        </Box>
                                     </Box>
-                                    <Box sx={{ fontSize: 60, opacity: 0.3 }}>{stat.icon}</Box>
+                                    <Typography variant="h4" fontWeight="bold">
+                                        {stat.value}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {stat.title}
+                                    </Typography>
                                 </Box>
                             </CardContent>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
-            {/* Recent Activities */}
-            <Grid container spacing={3}>
-                {/* Recent Tasks */}
-                <Grid size={{ xs: 12, md: 6 }}>
-                    <Paper sx={{ p: 2 }}>
-                        <Typography variant="h6" gutterBottom>
-                            Recent Tasks
+
+            {/* Charts Section */}
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid size={{ xs: 12, md: 8 }}>
+                    <Paper sx={{ p: 3, borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                        <Typography variant="h6" gutterBottom fontWeight="600">
+                            Task Performance
                         </Typography>
-                        <List>
-                            {recentTasks.length === 0 ? (
-                                <ListItem>
-                                    <ListItemText primary="No tasks available" />
-                                </ListItem>
-                            ) : (
-                                recentTasks.map((task) => (
-                                    <ListItem key={task.id} sx={{ borderBottom: '1px solid #eee' }}>
-                                        <ListItemText
-                                            primary={task.title}
-                                            secondary={
-                                                <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
-                                                    <Chip label={task.status} size="small" color={getStatusColor(task.status) as any} />
-                                                    <Chip label={task.priority} size="small" variant="outlined" />
-                                                </Box>
-                                            }
-                                        />
-                                    </ListItem>
-                                ))
-                            )}
-                        </List>
+                        <Box sx={{ height: 300 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={taskChartData}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <XAxis dataKey="name" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Bar dataKey="count" fill="#3f51b5" radius={[4, 4, 0, 0]} barSize={60} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </Box>
                     </Paper>
                 </Grid>
-                {/* Recent Leave Requests */}
-                <Grid size={{ xs: 12, md: 6 }}>
-                    <Paper sx={{ p: 2 }}>
-                        <Typography variant="h6" gutterBottom>
-                            Recent Leave Requests
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper sx={{ p: 3, borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                        <Typography variant="h6" gutterBottom fontWeight="600">
+                            Department Distribution
                         </Typography>
-                        <List>
-                            {recentLeaves.length === 0 ? (
-                                <ListItem>
-                                    <ListItemText primary="No leave requests" />
-                                </ListItem>
-                            ) : (
-                                recentLeaves.map((leave) => (
-                                    <ListItem key={leave.id} sx={{ borderBottom: '1px solid #eee' }}>
-                                        <ListItemText
-                                            primary={`${leave.employee_name || 'Employee'} - ${leave.leave_type_name || 'Leave'}`}
-                                            secondary={
-                                                <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
-                                                    <Chip label={leave.status} size="small" color={getStatusColor(leave.status) as any} />
-                                                    <Typography variant="caption">
-                                                        {new Date(leave.start_date).toLocaleDateString()} - {new Date(leave.end_date).toLocaleDateString()}
-                                                    </Typography>
-                                                </Box>
-                                            }
-                                        />
-                                    </ListItem>
-                                ))
-                            )}
-                        </List>
+                        <Box sx={{ height: 300 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={deptData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                    >
+                                        {deptData.map((entry: any, index: number) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </Box>
                     </Paper>
                 </Grid>
             </Grid>
 
-            {/* Department Distribution */}
-            <Paper sx={{ p: 2, mt: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                    Employees by Department
-                </Typography>
-                <Grid container spacing={2}>
-                    {Object.entries(departmentStats).map(([dept, count]) => (
-                        <Grid size={{ xs: 6, md: 3 }} key={dept}>
-                            <Box sx={{
-                                p: 2,
-                                borderRadius: 1,
-                                bgcolor: '#f5f5f5',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center'
-                            }}>
-                                <Typography variant="h4" color="primary">
-                                    {count}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {dept}
-                                </Typography>
-                            </Box>
-                        </Grid>
-                    ))}
-                    {Object.keys(departmentStats).length === 0 && (
-                        <Grid size={{ xs: 12 }}>
-                            <Typography variant="body2" color="text.secondary" align="center">
-                                No department data available
-                            </Typography>
-                        </Grid>
-                    )}
+            {/* Detailed Info Section */}
+            <Grid container spacing={3}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper sx={{ p: 3, borderRadius: '12px', height: '100%' }}>
+                        <Typography variant="h6" gutterBottom fontWeight="600">
+                            Recent Tasks
+                        </Typography>
+                        <List>
+                            {recentTasks.map((task, i) => (
+                                <Box key={task.id}>
+                                    <ListItem disableGutters>
+                                        <ListItemText
+                                            primary={task.title}
+                                            secondary={`Status: ${task.status}`}
+                                            primaryTypographyProps={{ fontWeight: 500 }}
+                                        />
+                                        <Chip
+                                            label={task.priority}
+                                            size="small"
+                                            color={task.priority === 'HIGH' ? 'error' : 'default'}
+                                            variant="outlined"
+                                        />
+                                    </ListItem>
+                                    {i < recentTasks.length - 1 && <Divider />}
+                                </Box>
+                            ))}
+                        </List>
+                    </Paper>
                 </Grid>
-            </Paper>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper sx={{ p: 3, borderRadius: '12px', height: '100%' }}>
+                        <Typography variant="h6" gutterBottom fontWeight="600">
+                            Sales Pipeline
+                        </Typography>
+                        <Box sx={{ mt: 2 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                                <Typography>Sent Quotations</Typography>
+                                <Typography fontWeight="bold">{data?.sales?.quotations?.pending}</Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                                <Typography>Accepted Quotations</Typography>
+                                <Typography fontWeight="bold" color="success.main">{data?.sales?.quotations?.accepted}</Typography>
+                            </Box>
+                            <Divider sx={{ my: 2 }} />
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography variant="h6">Total Revenue</Typography>
+                                <Typography variant="h6" color="primary">${data?.sales?.total_revenue?.toLocaleString()}</Typography>
+                            </Box>
+                        </Box>
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper sx={{ p: 3, borderRadius: '12px', height: '100%' }}>
+                        <Typography variant="h6" gutterBottom fontWeight="600">
+                            Facility Management
+                        </Typography>
+                        <Box sx={{ mt: 2 }}>
+                            {data?.cafm?.by_priority?.map((p: any) => (
+                                <Box key={p.priority} sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                                    <Typography>{p.priority} Priority</Typography>
+                                    <Chip label={p.count} size="small" />
+                                </Box>
+                            ))}
+                            <Divider sx={{ my: 2 }} />
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Typography>Total Open Requests</Typography>
+                                <Typography fontWeight="bold">{data?.cafm?.open_requests}</Typography>
+                            </Box>
+                        </Box>
+                    </Paper>
+                </Grid>
+            </Grid>
         </Box>
     );
 }
