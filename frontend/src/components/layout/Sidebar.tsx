@@ -50,6 +50,7 @@ const navSections: NavSection[] = [
         title: 'MAIN',
         items: [
             { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon />, roles: ['admin', 'manager', 'hr', 'employee', 'finance', 'security'] },
+            { label: 'ML Analysis', path: '/analysis', icon: <AutoGraphIcon />, roles: ['admin', 'manager', 'hr'] },
         ]
     },
     {
@@ -322,9 +323,10 @@ export default function Sidebar() {
                 '& .MuiDrawer-paper': {
                     width: 260,
                     boxSizing: 'border-box',
-                    background: 'linear-gradient(180deg, #818cf8 0%, #6366f1 100%)',
+                    background: 'linear-gradient(180deg, #4f46e5 0%, #6366f1 100%)',
                     color: 'white',
-                    borderRight: 'none',
+                    borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+                    boxShadow: '4px 0 24px 0 rgba(0, 0, 0, 0.1)',
                     '&::-webkit-scrollbar': {
                         width: '4px',
                     },
