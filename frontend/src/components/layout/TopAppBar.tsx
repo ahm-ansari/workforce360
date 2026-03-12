@@ -124,14 +124,15 @@ export default function TopAppBar({ title = 'Workforce360' }: TopAppBarProps) {
 
     return (
         <AppBar
-            position="static"
+            position="sticky"
             elevation={0}
             sx={{
-                bgcolor: 'white',
+                bgcolor: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(12px)',
                 color: 'text.primary',
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-                mb: 3,
+                borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+                top: 0,
+                zIndex: 1100,
             }}
         >
             <Toolbar sx={{ justifyContent: 'space-between' }}>
