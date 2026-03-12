@@ -20,9 +20,21 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     return (
         <Box sx={{ display: 'flex' }}>
             <Sidebar />
-            <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default', minHeight: '100vh' }}>
+            <Box 
+                component="main" 
+                sx={{ 
+                    flexGrow: 1, 
+                    bgcolor: '#f8fafc',
+                    backgroundImage: 'radial-gradient(#e2e8f0 0.5px, transparent 0.5px)',
+                    backgroundSize: '24px 24px',
+                    minHeight: '100vh',
+                    transition: 'all 0.3s ease'
+                }}
+            >
                 <TopAppBar />
-                {children}
+                <Box sx={{ p: { xs: 2, md: 3 } }}>
+                    {children}
+                </Box>
             </Box>
         </Box>
     );
