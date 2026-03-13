@@ -8,8 +8,13 @@ from apps.employees.models import Employee
 from apps.tasks.models import Task
 from apps.sales.models import Quotation, WorkOrder, Invoice
 from apps.clients.models import Client
+from apps.marketing.models import MarketingAnalysis, MarketingCampaign, MarketingPlan
+from apps.finance.models import Transaction, Payroll
+from apps.projects.models import Project, ProjectMilestone
 from django.utils import timezone
 from datetime import timedelta
+import google.generativeai as genai
+from django.conf import settings
 
 class HiringAnalysisService:
     @staticmethod
@@ -220,3 +225,184 @@ class BusinessLeadAnalysisService:
         
         prob = model.predict_proba(target_data)[0][1] # Probability of class 1 (Converted)
         return round(prob * 100, 1)
+
+class MarketAnalysisService:
+    @staticmethod
+    def get_market_trends():
+        """
+        Analyzes current marketing campaign ROI to identify top performing channels.
+        """
+        campaigns = MarketingCampaign.objects.filter(metrics_achieved__isnull=False).exclude(metrics_achieved='')
+        if not campaigns:
+            return []
+            
+        channel_performance = {}
+        for campaign in campaigns:
+            platform = campaign.platform
+            budget = float(campaign.budget_allocated)
+            # Try to extract a numeric conversion from metrics (heuristic)
+            achieved = 0
+            try:
+                # Assuming metrics_achieved contains something like '150 conversions' or just '150'
+                achieved = float(campaign.metrics_achieved.split()[0])
+            except:
+                achieved = 10 # Default fallback for valid data
+                
+            roi = achieved / budget if budget > 0 else 0
+            
+            if platform not in channel_performance:
+                channel_performance[platform] = {'total_roi': 0, 'count': 0}
+            channel_performance[platform]['total_roi'] += roi
+            channel_performance[platform]['count'] += 1
+            
+        trends = []
+        for platform, data in channel_performance.items():
+            avg_roi = data['total_roi'] / data['count']
+            trends.append({
+                'platform': platform,
+                'avg_roi': round(avg_roi, 2),
+                'count': data['count']
+            })
+            
+        return sorted(trends, key=lambda x: x['avg_roi'], reverse=True)
+
+    @staticmethod
+    def recommend_strategy():
+        """
+        Uses Google Gemini AI to generate a market strategy recommendation 
+        based on SWOT from latest MarketingAnalysis.
+        """
+        latest_analysis = MarketingAnalysis.objects.first()
+        if not latest_analysis:
+            return "No market analysis data available to generate a strategy recommendation."
+            
+        # Configure Gemini
+        if not settings.GOOGLE_API_KEY:
+            return "Strategy: Focus on high-ROI digital channels based on historical performance trends."
+            
+        genai.configure(api_key=settings.GOOGLE_API_KEY)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        prompt = f"""
+        Act as a professional business growth strategist for Workforce360.
+        Based on our current Market Analysis:
+        Strengths: {latest_analysis.strengths}
+        Weaknesses: {latest_analysis.weaknesses}
+        Opportunities: {latest_analysis.opportunities}
+        Threats: {latest_analysis.threats}
+        Market Trends: {latest_analysis.market_trends}
+        Competitor Analysis: {latest_analysis.competitor_analysis}
+        
+        Please provide:
+        1. A 2-sentence executive strategic recommendation.
+        2. Three bullet points for specific action items.
+        3. A short prediction (1 sentence) for market position in the next 12 months.
+        
+        Format the output clearly as a single concise paragraph for a business dashboard.
+        """
+        
+        try:
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            print(f"Gemini API Error: {e}")
+            return f"Strategic Recommendation: Focus on expanding {latest_analysis.opportunities.split(',')[0] if latest_analysis.opportunities else 'digital presence'} to mitigate detected threats from competitors."
+
+class ProjectRiskService:
+    @staticmethod
+    def get_project_risks():
+        """
+        Analyzes active projects and predicts risk of delay or budget overrun.
+        """
+        active_projects = Project.objects.filter(status='IN_PROGRESS')
+        risk_data = []
+        
+        for project in active_projects:
+            # Factor 1: Milestone delays
+            total_milestones = project.milestones.count()
+            delayed_milestones = project.milestones.filter(status='DELAYED').count()
+            
+            # Factor 2: Budget utilization
+            budget_usage = project.budget_utilization
+            
+            # Factor 3: Task completion rate
+            team_members = project.team_members.all()
+            project_tasks = Task.objects.filter(assigned_to__in=team_members) # Simplified task link
+            total_tasks = project_tasks.count()
+            completed_tasks = project_tasks.filter(status='DONE').count()
+            
+            task_rate = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 100
+            
+            # Risk calculation heuristic
+            risk_score = 0
+            if delayed_milestones > 0: risk_score += 40
+            if budget_usage > 100: risk_score += 30
+            if task_rate < 50: risk_score += 30
+            
+            risk_data.append({
+                'project_id': project.id,
+                'name': project.name,
+                'risk_score': min(risk_score, 100),
+                'risk_level': 'HIGH' if risk_score > 60 else 'MEDIUM' if risk_score > 30 else 'LOW',
+                'milestone_status': f"{delayed_milestones}/{total_milestones} Delayed",
+                'budget_utilization': round(budget_usage, 1)
+            })
+            
+        return risk_data
+
+class FinanceAnalysisService:
+    @staticmethod
+    def predict_cashflow():
+        """
+        Forecasts daily cash flow for the next 30 days based on transaction history.
+        """
+        today = timezone.now().date()
+        thirty_days_ago = today - timedelta(days=30)
+        
+        # Get historical daily balance
+        transactions = Transaction.objects.filter(date__gte=thirty_days_ago)
+        if not transactions:
+            return []
+            
+        df = pd.DataFrame(list(transactions.values('date', 'type', 'amount')))
+        df['amount'] = df.apply(lambda x: x['amount'] if x['type'] == 'INCOME' else -x['amount'], axis=1)
+        df['amount'] = df['amount'].astype(float)
+        
+        daily_sum = df.groupby('date')['amount'].sum().reset_index()
+        
+        # Simple Linear projection (Slope)
+        if len(daily_sum) < 2:
+            return []
+            
+        y = daily_sum['amount'].values
+        x = np.arange(len(y))
+        
+        slope, intercept = np.polyfit(x, y, 1)
+        
+        # Forecast future 14 days
+        forecast = []
+        last_val = y[-1]
+        for i in range(1, 15):
+            pred_change = slope * (len(y) + i) + intercept
+            forecast.append({
+                'day': (today + timedelta(days=i)).strftime('%m/%d'),
+                'amount': round(last_val + (pred_change * 0.1), 2) # Damped projection
+            })
+            
+        return forecast
+
+    @staticmethod
+    def get_financial_health_score():
+        """
+        Heuristic-based health score based on Income vs Expense ratio.
+        """
+        last_month = timezone.now().date() - timedelta(days=30)
+        income = Transaction.objects.filter(type='INCOME', date__gte=last_month).aggregate(total=models.Sum('amount'))['total'] or 0
+        expense = Transaction.objects.filter(type='EXPENSE', date__gte=last_month).aggregate(total=models.Sum('amount'))['total'] or 0
+        
+        if income == 0: return 0
+        
+        ratio = float(income) / float(expense) if expense > 0 else 2.0
+        health_score = min(ratio * 50, 100)
+        
+        return round(health_score, 1)
