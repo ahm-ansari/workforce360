@@ -250,17 +250,22 @@ def seed_all():
         print("Seeding Outsourcing Module...")
         StaffingContract.objects.all().delete()
         StaffingRequest.objects.all().delete()
+        companies = list(Company.objects.all())
         for _ in range(5):
             req = StaffingRequest.objects.create(
+                client=random.choice(companies) if companies else None,
                 title=f"Req-{random.randint(10000, 99999)}",
                 description="Staffing needs.",
+                start_date=date.today(),
+                end_date=date.today() + timedelta(days=180),
                 status=random.choice(['PENDING', 'APPROVED', 'FULLFILLED'])
             )
             StaffingContract.objects.create(
-                request=req,
+                client=req.client,
                 contract_number=f"CONT-{random.randint(100000, 999999)}",
                 start_date=date.today(),
-                end_date=date.today() + timedelta(days=180)
+                end_date=date.today() + timedelta(days=180),
+                terms_and_conditions="Sample terms of service for staffing."
             )
     except Exception as e:
         print(f"Error seeding Outsourcing: {e}")
