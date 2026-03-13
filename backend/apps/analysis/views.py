@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .services import HiringAnalysisService, ResourceAnalysisService, BusinessLeadAnalysisService
+from .services import HiringAnalysisService, ResourceAnalysisService, BusinessLeadAnalysisService, MarketAnalysisService, ProjectRiskService, FinanceAnalysisService
 
 class HiringPredictionView(APIView):
     permission_classes = [IsAuthenticated]
@@ -72,6 +72,46 @@ class BusinessLeadAnalysisView(APIView):
                 'client_name': lead.name if lead else 'N/A',
                 'conversion_probability': prediction
             }
+        })
+
+class MarketAnalysisView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """
+        Returns market performance trends and AI-driven strategy recommendations.
+        """
+        trends = MarketAnalysisService.get_market_trends()
+        strategy_recommendation = MarketAnalysisService.recommend_strategy()
+        
+        return Response({
+            'market_trends': trends,
+            'strategy_recommendation': strategy_recommendation
+        })
+
+class ProjectRiskView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """
+        Returns risk analytics for active projects.
+        """
+        risks = ProjectRiskService.get_project_risks()
+        return Response({'project_risks': risks})
+
+class FinancePredictionView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """
+        Returns cash flow forecasts and financial health scores.
+        """
+        cashflow = FinanceAnalysisService.predict_cashflow()
+        health_score = FinanceAnalysisService.get_financial_health_score()
+        
+        return Response({
+            'cashflow_forecast': cashflow,
+            'health_score': health_score
         })
 
 class AnalysisSummaryView(APIView):
