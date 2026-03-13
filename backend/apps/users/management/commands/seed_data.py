@@ -214,8 +214,8 @@ class Command(BaseCommand):
                     employee=emp,
                     date=date,
                     defaults={
-                        'check_in': datetime.combine(date, datetime.strptime('09:00', '%H:%M').time()),
-                        'check_out': datetime.combine(date, datetime.strptime('17:00', '%H:%M').time()),
+                        'check_in': datetime.strptime('09:00', '%H:%M').time(),
+                        'check_out': datetime.strptime('17:00', '%H:%M').time(),
                         'status': 'PRESENT'
                     }
                 )
@@ -275,13 +275,11 @@ class Command(BaseCommand):
         # Create Reimbursements
         self.stdout.write('Creating reimbursements...')
         for i in range(5):
-            Reimbursement.objects.get_or_create(
+            Reimbursement.objects.create(
                 employee=random.choice(employees),
-                defaults={
-                    'amount': Decimal(random.randint(100, 1000)),
-                    'description': f'Travel expense {i+1}',
-                    'status': random.choice(['PENDING', 'APPROVED', 'REJECTED'])
-                }
+                amount=Decimal(random.randint(100, 1000)),
+                description=f'Travel expense {i+1}',
+                status=random.choice(['PENDING', 'APPROVED', 'REJECTED'])
             )
         self.stdout.write('  Created 5 reimbursements')
 
