@@ -101,7 +101,9 @@ export default function AssetsList() {
                     <Table>
                         <TableHead>
                             <TableRow sx={{ bgcolor: 'action.hover' }}>
+                                <TableCell sx={{ fontWeight: 600 }}>Asset ID</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
+                                <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Facility</TableCell>
@@ -112,6 +114,7 @@ export default function AssetsList() {
                         <TableBody>
                             {assets.length > 0 ? assets.map((asset: any) => (
                                 <TableRow key={asset.id} hover>
+                                    <TableCell>{asset.asset_id || '-'}</TableCell>
                                     <TableCell>
                                         <Typography
                                             variant="subtitle2"
@@ -122,6 +125,7 @@ export default function AssetsList() {
                                             {asset.name}
                                         </Typography>
                                     </TableCell>
+                                    <TableCell>{asset.category || '-'}</TableCell>
                                     <TableCell>{asset.asset_type}</TableCell>
                                     <TableCell>
                                         <Chip
@@ -146,7 +150,7 @@ export default function AssetsList() {
                                 </TableRow>
                             )) : (
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
+                                    <TableCell colSpan={8} align="center" sx={{ py: 10 }}>
                                         {loading ? (
                                             <Typography>Loading assets...</Typography>
                                         ) : (
