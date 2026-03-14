@@ -21,28 +21,35 @@ export default function NewMaintenanceRequest() {
     const [facilities, setFacilities] = useState<{ id: number; name: string }[]>([]);
     const [spaces, setSpaces] = useState<{ id: number; name: string }[]>([]);
     const [assets, setAssets] = useState<{ id: number; name: string }[]>([]);
+    const [employees, setEmployees] = useState<any[]>([]);
     const [formData, setFormData] = useState({
+        work_order_id: '',
         title: '',
         description: '',
         priority: 'MEDIUM',
         status: 'OPEN',
         facility: '',
         space: '',
-        asset: ''
+        location_details: '',
+        asset: '',
+        assigned_to: '',
+        estimated_completion_time: ''
     });
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                const [facRes, spRes, astRes] = await Promise.all([
+                const [facRes, spRes, astRes, empRes] = await Promise.all([
                     axios.get('cafm/facilities/'),
                     axios.get('cafm/spaces/'),
-                    axios.get('cafm/assets/')
+                    axios.get('cafm/assets/'),
+                    axios.get('employees/employees/')
                 ]);
                 setFacilities(facRes.data);
                 setSpaces(spRes.data);
                 setAssets(astRes.data);
+                setEmployees(empRes.data);
             } catch (error) {
                 console.error('Failed to fetch data', error);
             }
@@ -61,6 +68,8 @@ export default function NewMaintenanceRequest() {
             const payload: any = { ...formData };
             if (!payload.space) delete payload.space;
             if (!payload.asset) delete payload.asset;
+            if (!payload.assigned_to) delete payload.assigned_to;
+            if (!payload.estimated_completion_time) delete payload.estimated_completion_time;
 
             await axios.post('cafm/maintenance-requests/', payload);
             router.push('/cafm/maintenance');
@@ -89,11 +98,21 @@ export default function NewMaintenanceRequest() {
                 <CardContent sx={{ p: 4 }}>
                     <form onSubmit={handleSubmit}>
                         <Grid container spacing={3}>
-                            <Grid size={{ xs: 12 }}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Work Order ID"
+                                    name="work_order_id"
+                                    value={formData.work_order_id}
+                                    onChange={handleChange}
+                                    placeholder="e.g. WO-2024-001"
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     fullWidth
                                     required
-                                    label="Issue Title"
+                                    label="Task Title"
                                     name="title"
                                     value={formData.title}
                                     onChange={handleChange}
@@ -164,6 +183,44 @@ export default function NewMaintenanceRequest() {
                                         </MenuItem>
                                     ))}
                                 </TextField>
+                            </Grid>
+                            <Grid size={{ xs: 12 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Specific Location Details"
+                                    name="location_details"
+                                    value={formData.location_details}
+                                    onChange={handleChange}
+                                    placeholder="e.g. Near the server room entrance, Floor 2"
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <TextField
+                                    select
+                                    fullWidth
+                                    label="Assigned Technician"
+                                    name="assigned_to"
+                                    value={formData.assigned_to}
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value=""><em>Unassigned</em></MenuItem>
+                                    {employees.map((e) => (
+                                        <MenuItem key={e.id} value={e.id.toString()}>
+                                            {e.user?.first_name} {e.user?.last_name} ({e.designation_name})
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    type="datetime-local"
+                                    label="Estimated Completion"
+                                    name="estimated_completion_time"
+                                    value={formData.estimated_completion_time}
+                                    onChange={handleChange}
+                                    slotProps={{ inputLabel: { shrink: true } }}
+                                />
                             </Grid>
                             <Grid size={{ xs: 12 }}>
                                 <TextField
