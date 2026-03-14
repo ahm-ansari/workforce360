@@ -116,7 +116,7 @@ export default function MaintenanceDetail() {
                                 {request.title}
                             </Typography>
                             <Typography variant="body1" color="text.secondary">
-                                ID: MRQ-{request.id.toString().padStart(4, '0')} • Created {new Date(request.created_at).toLocaleDateString()}
+                                {request.work_order_id ? `WO ID: ${request.work_order_id}` : `Request ID: MRQ-${request.id.toString().padStart(4, '0')}`} • Created {new Date(request.created_at).toLocaleDateString()}
                             </Typography>
                         </Box>
                         <Chip
@@ -149,6 +149,11 @@ export default function MaintenanceDetail() {
                                                     <RoomIcon color="action" fontSize="small" />
                                                     <Typography variant="body2">{request.space_name}</Typography>
                                                 </Stack>
+                                            )}
+                                            {request.location_details && (
+                                                <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontStyle: 'italic' }}>
+                                                    Note: {request.location_details}
+                                                </Typography>
                                             )}
                                         </Box>
                                         <Box>
@@ -292,6 +297,15 @@ export default function MaintenanceDetail() {
                                         color={request.priority === 'CRITICAL' ? 'error' : request.priority === 'HIGH' ? 'warning' : 'info'}
                                         sx={{ fontWeight: 700 }}
                                     />
+                                </Box>
+
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                                        ESTIMATED COMPLETION
+                                    </Typography>
+                                    <Typography variant="body2" fontWeight={600} color={request.estimated_completion_time ? 'primary' : 'text.secondary'}>
+                                        {request.estimated_completion_time ? new Date(request.estimated_completion_time).toLocaleString() : 'Not set'}
+                                    </Typography>
                                 </Box>
 
                                 <Box>
