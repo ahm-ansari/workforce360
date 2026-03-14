@@ -21,10 +21,18 @@ export default function NewAsset() {
     const [facilities, setFacilities] = useState<{ id: number; name: string }[]>([]);
     const [spaces, setSpaces] = useState<{ id: number; name: string }[]>([]);
     const [formData, setFormData] = useState({
+        asset_id: '',
         name: '',
+        category: '',
         description: '',
         asset_type: '',
+        location: '',
         serial_number: '',
+        installation_date: '',
+        warranty_details: '',
+        vendor_information: '',
+        maintenance_frequency: '',
+        asset_value: '',
         status: 'ACTIVE',
         facility: '',
         space: ''
@@ -58,6 +66,8 @@ export default function NewAsset() {
             const payload: any = { ...formData };
             if (!payload.facility) delete payload.facility;
             if (!payload.space) delete payload.space;
+            if (!payload.installation_date) delete payload.installation_date;
+            if (!payload.asset_value) delete payload.asset_value;
 
             await axios.post('cafm/assets/', payload);
             router.push('/cafm/assets');
@@ -86,7 +96,16 @@ export default function NewAsset() {
                 <CardContent sx={{ p: 4 }}>
                     <form onSubmit={handleSubmit}>
                         <Grid container spacing={3}>
-                            <Grid size={{ xs: 12 }}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Asset ID"
+                                    name="asset_id"
+                                    value={formData.asset_id}
+                                    onChange={handleChange}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     fullWidth
                                     required
@@ -99,7 +118,15 @@ export default function NewAsset() {
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     fullWidth
-                                    required
+                                    label="Category"
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleChange}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <TextField
+                                    fullWidth
                                     label="Asset Type"
                                     name="asset_type"
                                     value={formData.asset_type}
@@ -121,12 +148,21 @@ export default function NewAsset() {
                                     <MenuItem value="RETIRED">Retired</MenuItem>
                                 </TextField>
                             </Grid>
-                            <Grid size={{ xs: 12 }}>
+                            <Grid size={{ xs: 12, sm: 6 }}>
                                 <TextField
                                     fullWidth
                                     label="Serial Number"
                                     name="serial_number"
                                     value={formData.serial_number}
+                                    onChange={handleChange}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Location"
+                                    name="location"
+                                    value={formData.location}
                                     onChange={handleChange}
                                 />
                             </Grid>
@@ -161,6 +197,56 @@ export default function NewAsset() {
                                         </MenuItem>
                                     ))}
                                 </TextField>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    type="date"
+                                    label="Installation Date"
+                                    name="installation_date"
+                                    value={formData.installation_date}
+                                    onChange={handleChange}
+                                    slotProps={{ inputLabel: { shrink: true } }}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    type="number"
+                                    label="Asset Value"
+                                    name="asset_value"
+                                    value={formData.asset_value}
+                                    onChange={handleChange}
+                                    InputProps={{ startAdornment: <Typography sx={{mr: 1}}>$</Typography> }}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Maintenance Frequency"
+                                    name="maintenance_frequency"
+                                    value={formData.maintenance_frequency}
+                                    onChange={handleChange}
+                                    placeholder="e.g. Monthly, Annually"
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Warranty Details"
+                                    name="warranty_details"
+                                    value={formData.warranty_details}
+                                    onChange={handleChange}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12 }}>
+                                <TextField
+                                    fullWidth
+                                    label="Vendor Information"
+                                    name="vendor_information"
+                                    value={formData.vendor_information}
+                                    onChange={handleChange}
+                                />
                             </Grid>
                             <Grid size={{ xs: 12 }}>
                                 <TextField
