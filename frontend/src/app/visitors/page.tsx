@@ -62,7 +62,7 @@ export default function VisitorsDashboard() {
 
             <Grid container spacing={3}>
                 {/* Active Visitors */}
-                <Grid size= xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Card>
                         <CardContent>
                             <Typography variant="h6" gutterBottom>Active Visitors</Typography>
@@ -93,7 +93,7 @@ export default function VisitorsDashboard() {
                 </Grid>
 
                 {/* Recent Gate Entries */}
-                <Grid size= xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Card>
                         <CardContent>
                             <Typography variant="h6" gutterBottom>Recent Gate Entries</Typography>
