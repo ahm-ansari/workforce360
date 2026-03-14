@@ -99,7 +99,7 @@ export default function SalesOverview() {
 
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 {summaryCards.map((card) => (
-                    <Grid item xs={12} md={4} key={card.title}>
+                    <Grid size= xs={12} md={4} key={card.title}>
                         <Card sx={{ borderRadius: 4, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
                             <CardContent sx={{ p: 3 }}>
                                 <Stack direction="row" spacing={2} alignItems="center">
@@ -122,7 +122,7 @@ export default function SalesOverview() {
             </Grid>
 
             <Grid container spacing={3}>
-                <Grid item xs={12} md={8}>
+                <Grid size= xs={12} md={8}>
                     <Card sx={{ borderRadius: 4, height: '100%' }}>
                         <CardContent sx={{ p: 3 }}>
                             <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>Recent Financial Activity</Typography>
@@ -146,7 +146,7 @@ export default function SalesOverview() {
                             </Stack>
                             <Divider sx={{ my: 4 }} />
                             <Grid container spacing={2}>
-                                <Grid item xs={6}>
+                                <Grid size= xs={6}>
                                     <Button
                                         fullWidth
                                         variant="light"
@@ -156,7 +156,7 @@ export default function SalesOverview() {
                                         View Quotations
                                     </Button>
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid size= xs={6}>
                                     <Button
                                         fullWidth
                                         variant="light"
@@ -170,7 +170,7 @@ export default function SalesOverview() {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size= xs={12} md={4}>
                     <Card sx={{ borderRadius: 4, bgcolor: '#1e293b', color: 'white', height: '100%' }}>
                         <CardContent sx={{ p: 3 }}>
                             <Typography variant="h6" fontWeight={700} gutterBottom>Collection Status</Typography>
