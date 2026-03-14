@@ -142,7 +142,7 @@ export default function ProjectsPage() {
                     <CustomTabPanel value={tabValue} index={0}>
                         <Grid container spacing={3}>
                             {projects.map((project) => (
-                                <Grid item xs={12} md={6} lg={4} key={project.id}>
+                                <Grid xs={12} md={6} lg={4} key={project.id}>
                                     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: '0.3s', '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 } }}>
                                         <CardContent sx={{ flexGrow: 1 }}>
                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -184,7 +184,7 @@ export default function ProjectsPage() {
                                 </Grid>
                             ))}
                             {projects.length === 0 && (
-                                <Grid item xs={12}>
+                                <Grid xs={12}>
                                     <Box sx={{ textAlign: 'center', py: 5 }}>
                                         <Typography color="text.secondary">No projects found.</Typography>
                                     </Box>
@@ -196,7 +196,7 @@ export default function ProjectsPage() {
                     <CustomTabPanel value={tabValue} index={1}>
                         <Grid container spacing={3}>
                             {services.map((service) => (
-                                <Grid item xs={12} md={6} lg={4} key={service.id}>
+                                <Grid xs={12} md={6} lg={4} key={service.id}>
                                     <Card variant="outlined" sx={{ borderRadius: 2 }}>
                                         <CardContent>
                                             <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -226,7 +226,7 @@ export default function ProjectsPage() {
                     <CustomTabPanel value={tabValue} index={2}>
                         <Grid container spacing={3}>
                             {solutions.map((solution) => (
-                                <Grid item xs={12} md={6} lg={4} key={solution.id}>
+                                <Grid xs={12} md={6} lg={4} key={solution.id}>
                                     <Card variant="outlined" sx={{ borderRadius: 2 }}>
                                         <CardContent>
                                             <Typography variant="h6" fontWeight="bold" gutterBottom>
