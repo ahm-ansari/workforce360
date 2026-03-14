@@ -111,6 +111,7 @@ export default function MaintenanceList() {
                     <Table>
                         <TableHead>
                             <TableRow sx={{ bgcolor: 'action.hover' }}>
+                                <TableCell sx={{ fontWeight: 600 }}>ID</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Title</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Priority</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
@@ -123,6 +124,7 @@ export default function MaintenanceList() {
                         <TableBody>
                             {requests.length > 0 ? requests.map((request: any) => (
                                 <TableRow key={request.id} hover>
+                                    <TableCell>{request.work_order_id || `MRQ-${request.id}`}</TableCell>
                                     <TableCell>
                                         <Typography
                                             variant="subtitle2"
@@ -165,7 +167,7 @@ export default function MaintenanceList() {
                                 </TableRow>
                             )) : (
                                 <TableRow>
-                                    <TableCell colSpan={7} align="center" sx={{ py: 10 }}>
+                                    <TableCell colSpan={8} align="center" sx={{ py: 10 }}>
                                         {loading ? (
                                             <Typography>Loading requests...</Typography>
                                         ) : (
