@@ -93,7 +93,9 @@ export default function AssetDetail() {
                                     color={getStatusColor(asset.status) as any}
                                 />
                             </Stack>
-                            <Typography variant="h5" fontWeight={700} gutterBottom>{asset.name}</Typography>
+                            <Typography variant="h5" fontWeight={700} gutterBottom>
+                                {asset.name} {asset.asset_id && <Typography component="span" variant="h6" color="text.secondary">(#{asset.asset_id})</Typography>}
+                            </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                                 {asset.description || 'No description provided.'}
                             </Typography>
@@ -102,11 +104,21 @@ export default function AssetDetail() {
 
                             <Stack spacing={2}>
                                 <Box>
+                                    <Typography variant="caption" color="text.secondary">CATEGORY</Typography>
+                                    <Typography variant="body2" fontWeight={600}>{asset.category || 'N/A'}</Typography>
+                                </Box>
+                                <Box>
                                     <Typography variant="caption" color="text.secondary">SERIAL NUMBER</Typography>
                                     <Typography variant="body2" fontWeight={600}>{asset.serial_number || 'N/A'}</Typography>
                                 </Box>
                                 <Box>
-                                    <Typography variant="caption" color="text.secondary">LOCATION</Typography>
+                                    <Typography variant="caption" color="text.secondary">LOCATION DETAILS</Typography>
+                                    {asset.location && (
+                                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                                            <RoomIcon fontSize="small" color="action" />
+                                            <Typography variant="body2">{asset.location}</Typography>
+                                        </Stack>
+                                    )}
                                     <Stack direction="row" spacing={1} alignItems="center">
                                         <BusinessIcon fontSize="small" color="action" />
                                         <Typography variant="body2">{asset.facility_name}</Typography>
@@ -128,8 +140,22 @@ export default function AssetDetail() {
 
                     <Card sx={{ borderRadius: 4, bgcolor: '#f8fafc' }}>
                         <CardContent sx={{ p: 3 }}>
-                            <Typography variant="h6" fontWeight={700} gutterBottom>Purchase Info</Typography>
+                            <Typography variant="h6" fontWeight={700} gutterBottom>Asset & Purchase Info</Typography>
                             <Stack spacing={2}>
+                                {asset.vendor_information && (
+                                    <Box>
+                                        <Typography variant="body2" color="text.secondary">Vendor Information</Typography>
+                                        <Typography variant="body2" fontWeight={600}>{asset.vendor_information}</Typography>
+                                    </Box>
+                                )}
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body2" color="text.secondary">Value</Typography>
+                                    <Typography variant="body2" fontWeight={600}>{asset.asset_value ? `$${asset.asset_value}` : 'N/A'}</Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body2" color="text.secondary">Installation Date</Typography>
+                                    <Typography variant="body2" fontWeight={600}>{asset.installation_date || 'Unknown'}</Typography>
+                                </Box>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <Typography variant="body2" color="text.secondary">Purchase Date</Typography>
                                     <Typography variant="body2" fontWeight={600}>{asset.purchase_date || 'Unknown'}</Typography>
@@ -140,6 +166,18 @@ export default function AssetDetail() {
                                         {asset.warranty_expiry || 'No Warranty'}
                                     </Typography>
                                 </Box>
+                                {asset.warranty_details && (
+                                    <Box>
+                                        <Typography variant="body2" color="text.secondary">Warranty Details</Typography>
+                                        <Typography variant="body2">{asset.warranty_details}</Typography>
+                                    </Box>
+                                )}
+                                {asset.maintenance_frequency && (
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                                        <Typography variant="body2" color="text.secondary">Maintenance Freq</Typography>
+                                        <Typography variant="body2" fontWeight={600}>{asset.maintenance_frequency}</Typography>
+                                    </Box>
+                                )}
                             </Stack>
                         </CardContent>
                     </Card>
