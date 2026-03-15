@@ -1,19 +1,14 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    FacilityViewSet,
-    SpaceViewSet,
-    AssetViewSet,
-    MaintenanceRequestViewSet,
-    MaintenanceLogViewSet,
-    BMSDeviceViewSet,
-    BMSTelemetryViewSet,
-    PPMScheduleViewSet,
-    TechnicianTrainingViewSet,
-    SystemAuditViewSet,
-    CAFMAuditLogViewSet,
-    MaintenanceCommunicationViewSet,
-    cafm_analytics
+    FacilityViewSet, SpaceViewSet, AssetViewSet,
+    MaintenanceRequestViewSet, MaintenanceLogViewSet,
+    BMSDeviceViewSet, BMSTelemetryViewSet,
+    PPMScheduleViewSet, TechnicianTrainingViewSet,
+    SystemAuditViewSet, CAFMAuditLogViewSet,
+    MaintenanceCommunicationViewSet, VendorViewSet,
+    SLAPolicyViewSet, WorkOrderStepViewSet,
+    InventoryItemViewSet, cafm_analytics
 )
 
 router = DefaultRouter()
@@ -29,6 +24,10 @@ router.register(r'trainings', TechnicianTrainingViewSet)
 router.register(r'audits', SystemAuditViewSet)
 router.register(r'audit-logs', CAFMAuditLogViewSet)
 router.register(r'communications', MaintenanceCommunicationViewSet)
+router.register(r'vendors', VendorViewSet)
+router.register(r'sla-policies', SLAPolicyViewSet)
+router.register(r'work-order-steps', WorkOrderStepViewSet)
+router.register(r'inventory', InventoryItemViewSet)
 
 urlpatterns = [
     path('analytics/', cafm_analytics, name='cafm-analytics'),
