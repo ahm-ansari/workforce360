@@ -44,7 +44,7 @@ export default function NewMaintenanceRequest() {
                     axios.get('cafm/facilities/'),
                     axios.get('cafm/spaces/'),
                     axios.get('cafm/assets/'),
-                    axios.get('employees/employees/')
+                    axios.get('employees/')
                 ]);
                 setFacilities(facRes.data);
                 setSpaces(spRes.data);
