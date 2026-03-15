@@ -35,7 +35,9 @@ import {
     Timeline as KPIIcon,
     NotificationsActive as AlertIcon,
     LocalDrink as WaterIcon,
-    SpaceDashboard as SpaceIcon
+    SpaceDashboard as SpaceIcon,
+    AutoAwesome as AIPIcon,
+    Engineering as EngineIcon
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import axios from '@/lib/axios';
@@ -76,6 +78,7 @@ export default function CAFMOverview() {
     const [criticalRequests, setCriticalRequests] = useState([]);
     const [bmsTelemetry, setBmsTelemetry] = useState<any[]>([]);
     const [upcomingPPM, setUpcomingPPM] = useState<any[]>([]);
+    const [aiInsights, setAiInsights] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
@@ -84,7 +87,7 @@ export default function CAFMOverview() {
         setMounted(true);
         const fetchStats = async () => {
             try {
-                const [facilitiesRes, spacesRes, assetsRes, maintenanceRes, bmsDevicesRes, ppmRes, auditsRes, analyticsRes] = await Promise.all([
+                const [facilitiesRes, spacesRes, assetsRes, maintenanceRes, bmsDevicesRes, ppmRes, auditsRes, analyticsRes, aiRes] = await Promise.all([
                     axios.get('cafm/facilities/'),
                     axios.get('cafm/spaces/'),
                     axios.get('cafm/assets/'),
@@ -92,7 +95,8 @@ export default function CAFMOverview() {
                     axios.get('cafm/bms-devices/'),
                     axios.get('cafm/ppm-schedules/'),
                     axios.get('cafm/audits/'),
-                    axios.get('cafm/analytics/')
+                    axios.get('cafm/analytics/'),
+                    axios.get('analysis/cafm/')
                 ]);
 
                 const analytics = analyticsRes.data;
@@ -129,6 +133,8 @@ export default function CAFMOverview() {
                 setCriticalRequests(maintenanceRes.data.filter((r: any) =>
                     r.priority === 'CRITICAL' || r.priority === 'HIGH'
                 ).slice(0, 5));
+
+                setAiInsights(aiRes.data);
 
             } catch (error) {
                 console.error('Error fetching CAFM stats:', error);
@@ -498,7 +504,7 @@ export default function CAFMOverview() {
             {/* Quick Insights Section */}
             <Typography variant="h5" fontWeight={800} sx={{ mt: 8, mb: 4, color: '#1e293b' }}>Governance & Admin</Typography>
             <Grid container spacing={3} sx={{ mb: 10 }}>
-                <Grid size={{ xs: 12, md: 4 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <Card sx={{ borderRadius: 5, bgcolor: 'white', border: '1px solid #e2e8f0' }}>
                         <CardContent sx={{ p: 4 }}>
                             <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
@@ -512,8 +518,8 @@ export default function CAFMOverview() {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Card sx={{ borderRadius: 5, bgcolor: 'white', border: '1px solid #e2e8f0' }}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <Card sx={{ borderRadius: 5, bgcolor: 'white', border: '1px solid #e2e8f0', height: '100%' }}>
                         <CardContent sx={{ p: 4 }}>
                             <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
                                 <Avatar sx={{ bgcolor: '#f0fdf4', color: '#16a34a' }}><AdminIcon /></Avatar>
@@ -526,8 +532,8 @@ export default function CAFMOverview() {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Card sx={{ borderRadius: 5, bgcolor: 'white', border: '1px solid #e2e8f0' }}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <Card sx={{ borderRadius: 5, bgcolor: 'white', border: '1px solid #e2e8f0', height: '100%' }}>
                         <CardContent sx={{ p: 4 }}>
                             <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
                                 <Avatar sx={{ bgcolor: '#eff6ff', color: '#2563eb' }}><ChatIcon /></Avatar>
@@ -538,6 +544,50 @@ export default function CAFMOverview() {
                             </Stack>
                             <Button fullWidth variant="contained" sx={{ bgcolor: '#f8fafc', color: '#1e293b', boxShadow: 'none', borderRadius: 3, py: 1.5, fontWeight: 700, '&:hover': { bgcolor: '#f1f5f9' } }} onClick={() => showNotImplemented('Team Collaboration')}>Join Channel</Button>
                         </CardContent>
+                    </Card>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <Card sx={{ 
+                        borderRadius: 5, 
+                        background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', 
+                        color: 'white',
+                        boxShadow: '0 10px 30px rgba(99, 102, 241, 0.4)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        height: '100%'
+                    }}>
+                        <CardContent sx={{ p: 4, position: 'relative', zIndex: 1 }}>
+                            <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+                                <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}><AIPIcon /></Avatar>
+                                <Box>
+                                    <Typography variant="h6" fontWeight={800} sx={{ lineHeight: 1.2 }}>AIP Predictive</Typography>
+                                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>Asset Intelligence</Typography>
+                                </Box>
+                            </Stack>
+                            <Box sx={{ mb: 3 }}>
+                                {aiInsights?.asset_failure_predictions?.[0] ? (
+                                    <Box>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, mb: 1, fontSize: '0.85rem' }}>
+                                            Critical: {aiInsights.asset_failure_predictions[0].name}
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ display: 'block', opacity: 0.9, bgcolor: 'rgba(255,255,255,0.1)', p: 1, borderRadius: 1.5 }}>
+                                            ⚠️ Risk: {aiInsights.asset_failure_predictions[0].failure_probability}% - {aiInsights.asset_failure_predictions[0].recommendation}
+                                        </Typography>
+                                    </Box>
+                                ) : (
+                                    <Typography variant="body2" sx={{ opacity: 0.8, fontSize: '0.85rem' }}>Analyzing fleet health... No immediate critical failures predicted.</Typography>
+                                )}
+                            </Box>
+                            <Button 
+                                fullWidth 
+                                variant="contained" 
+                                sx={{ bgcolor: 'white', color: '#4f46e5', fontWeight: 800, borderRadius: 3, '&:hover': { bgcolor: '#f1f5f9' }, py: 1, textTransform: 'none' }}
+                                onClick={() => router.push('/analysis')}
+                            >
+                                Deep AI Insights
+                            </Button>
+                        </CardContent>
+                        <AIPIcon sx={{ position: 'absolute', right: -20, bottom: -20, fontSize: 130, opacity: 0.08, transform: 'rotate(-15deg)' }} />
                     </Card>
                 </Grid>
             </Grid>
