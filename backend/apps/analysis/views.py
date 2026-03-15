@@ -1,7 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .services import HiringAnalysisService, ResourceAnalysisService, BusinessLeadAnalysisService, MarketAnalysisService, ProjectRiskService, FinanceAnalysisService
+from .services import (
+    HiringAnalysisService, ResourceAnalysisService, BusinessLeadAnalysisService, 
+    MarketAnalysisService, ProjectRiskService, FinanceAnalysisService, CAFMAnalysisService
+)
 
 class HiringPredictionView(APIView):
     permission_classes = [IsAuthenticated]
@@ -134,4 +137,19 @@ class AnalysisSummaryView(APIView):
             },
             'labels': ['Candidates', 'Employees', 'Active Tasks'],
             'data': [Candidate.objects.count(), Employee.objects.count(), Task.objects.filter(status__in=['TODO', 'IN_PROGRESS']).count()]
+        })
+
+class CAFMAnalysisView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """
+        Returns CAFM-specific analytics including asset failure predictions and energy forecasts.
+        """
+        asset_failures = CAFMAnalysisService.predict_asset_failures()
+        energy_forecast = CAFMAnalysisService.get_energy_efficiency_forecast()
+        
+        return Response({
+            'asset_failure_predictions': asset_failures,
+            'energy_efficiency_forecast': energy_forecast
         })
