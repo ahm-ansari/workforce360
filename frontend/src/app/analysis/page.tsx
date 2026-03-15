@@ -17,7 +17,8 @@ import {
     List,
     ListItem,
     ListItemIcon,
-    ListItemText
+    ListItemText,
+    Stack
 } from '@mui/material';
 import {
     ResponsiveContainer,
@@ -44,6 +45,13 @@ import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
 import SpeedIcon from '@mui/icons-material/Speed';
 import BoltIcon from '@mui/icons-material/Bolt';
 import ConstructionIcon from '@mui/icons-material/Construction';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import api from '@/services/api';
 
 const COLORS = ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff', '#4f46e5'];
