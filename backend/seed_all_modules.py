@@ -91,58 +91,84 @@ def seed_all():
     # 4. Recruitment - Full Pipeline
     try:
         print("Seeding Recruitment Module...")
+        from apps.recruitment.models import CandidateStageHistory
         Interview.objects.all().delete()
+        CandidateStageHistory.objects.all().delete()
         Candidate.objects.all().delete()
         Job.objects.all().delete()
         JobCategory.objects.all().delete()
         HiringStage.objects.all().delete()
         
+        category_names = ['Engineering', 'Sales & Marketing', 'Human Resources', 'Finance', 'Operations', 'Facility Management', 'IT', 'Design']
         categories = []
-        for name in ['Engineering', 'Sales', 'Marketing', 'Facility Management', 'HR', 'Finance']:
+        for name in category_names:
             cat = JobCategory.objects.create(name=name, description=f"Jobs related to {name}")
             categories.append(cat)
             
+        stage_names = ['Applied', 'Screening', 'Technical', 'HM Interview', 'Offer', 'Hired']
         stages = []
-        for i, name in enumerate(['Applied', 'Screening', 'Technical Interview', 'HR Interview', 'Management Review', 'Offer', 'Hired']):
+        for i, name in enumerate(stage_names):
             stage = HiringStage.objects.create(name=name, order=i, is_active=True)
             stages.append(stage)
             
-        job_titles = ['Junior Frontend Developer', 'HVAC Technician', 'Account Manager', 'Sales Representative', 'HR Specialist', 'Civil Engineer']
+        job_templates = [
+            {'title': 'Senior Developer', 'cat': 'Engineering', 'skills': ['React', 'Node.js']},
+            {'title': 'HVAC Technician', 'cat': 'Facility Management', 'skills': ['HVAC', 'Maintenance']},
+            {'title': 'Account Manager', 'cat': 'Sales & Marketing', 'skills': ['CRM', 'Negotiation']},
+            {'title': 'HR Specialist', 'cat': 'Human Resources', 'skills': ['Payroll', 'Policy']},
+            {'title': 'Financial Analyst', 'cat': 'Finance', 'skills': ['Excel', 'Modeling']},
+        ]
+        
         jobs = []
-        for title in job_titles:
+        for temp in job_templates:
+            cat = next((c for c in categories if c.name == temp['cat']), categories[0])
             j = Job.objects.create(
-                title=title,
-                description="Complete job description.",
+                title=temp['title'],
+                description="Sample job description with full details.",
                 department=random.choice(departments),
-                job_category=random.choice(categories),
+                job_category=cat,
                 status='PUBLISHED',
                 posted_by=random.choice(users),
                 posted_date=date.today() - timedelta(days=random.randint(5, 20)),
-                closing_date=date.today() + timedelta(days=20),
-                experience_level=random.choice(['ENTRY', 'MID', 'SENIOR']),
-                employment_type='FULL_TIME'
+                experience_level='MID',
+                employment_type='FULL_TIME',
+                skills_required=temp['skills']
             )
             jobs.append(j)
             
-        candidate_names = ['Alice Freeman', 'Mark Spencer', 'Sofia Garcia', 'Kevin Chen', 'Emma Watson', 'Liam Neeson']
+        candidate_names = ['Alice Freeman', 'Mark Spencer', 'Sofia Garcia', 'Kevin Chen', 'Emma Watson', 'Liam Neeson', 'John Doe', 'Jane Smith', 'Michael Brown']
         for name in candidate_names:
             job = random.choice(jobs)
+            status = random.choice(['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFERED', 'HIRED'])
+            stage = stages[min(len(stages)-1, ['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFERED', 'HIRED'].index(status))]
+            
             c = Candidate.objects.create(
                 name=name,
-                email=f"{name.lower().replace(' ', '.')}@{random.randint(10,99)}example.com",
-                phone=f"+1 {random.randint(100, 999)}-555-{random.randint(1000, 9999)}",
+                email=f"{name.lower().replace(' ', '.')}@example.com",
+                phone=f"+1-{random.randint(100, 999)}-5555",
                 job=job,
-                current_stage=random.choice(stages),
-                status=random.choice(['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFERED'])
+                current_stage=stage,
+                status=status,
+                source=random.choice(['LINKEDIN', 'INDEED', 'WEBSITE'])
             )
-            Interview.objects.create(
+            
+            # History
+            CandidateStageHistory.objects.create(
                 candidate=c,
-                interviewer=random.choice(users),
-                interview_type=random.choice(['PHONE', 'VIDEO', 'IN_PERSON']),
-                scheduled_date=date.today() + timedelta(days=random.randint(1, 10)),
-                scheduled_time=time(10, 0),
-                status='SCHEDULED'
+                stage=stages[0],
+                moved_by=random.choice(users),
+                notes="Initial application"
             )
+            
+            if status != 'APPLIED':
+                Interview.objects.create(
+                    candidate=c,
+                    interviewer=random.choice(users),
+                    interview_type=random.choice(['VIDEO', 'PHONE']),
+                    scheduled_date=date.today() + timedelta(days=random.randint(1, 10)),
+                    scheduled_time=time(10, 0),
+                    status='SCHEDULED'
+                )
     except Exception as e:
         print(f"Error seeding Recruitment: {e}")
 
