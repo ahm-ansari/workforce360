@@ -22,6 +22,8 @@ class JobSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='job_category.name', read_only=True)
     posted_by_name = serializers.CharField(source='posted_by.get_full_name', read_only=True)
     candidate_count = serializers.SerializerMethodField()
+    candidates_count = serializers.SerializerMethodField()
+    department_details = serializers.SerializerMethodField()
     
     class Meta:
         model = Job
@@ -30,6 +32,14 @@ class JobSerializer(serializers.ModelSerializer):
     
     def get_candidate_count(self, obj):
         return obj.candidates.count()
+
+    def get_candidates_count(self, obj):
+        return obj.candidates.count()
+    
+    def get_department_details(self, obj):
+        if obj.department:
+            return {'id': obj.department.id, 'name': obj.department.name}
+        return None
 
 class CandidateSerializer(serializers.ModelSerializer):
     job_title = serializers.CharField(source='job.title', read_only=True)
