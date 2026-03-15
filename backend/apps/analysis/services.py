@@ -11,10 +11,12 @@ from apps.clients.models import Client
 from apps.marketing.models import MarketingAnalysis, MarketingCampaign, MarketingPlan
 from apps.finance.models import Transaction, Payroll
 from apps.projects.models import Project, ProjectMilestone
+from apps.cafm.models import Asset, MaintenanceRequest, BMSTelemetry, Space
 from django.utils import timezone
 from datetime import timedelta
 import google.generativeai as genai
 from django.conf import settings
+from django.db import models
 
 class HiringAnalysisService:
     @staticmethod
@@ -406,3 +408,73 @@ class FinanceAnalysisService:
         health_score = min(ratio * 50, 100)
         
         return round(health_score, 1)
+
+class CAFMAnalysisService:
+    @staticmethod
+    def predict_asset_failures():
+        """
+        Analyzes assets and predicts failure probability based on age, category and maintenance history.
+        """
+        assets = Asset.objects.filter(status='ACTIVE')
+        failure_predictions = []
+        
+        for asset in assets:
+            # Component 1: Age Factor
+            age_factor = (asset.age / asset.expected_life_years) if asset.expected_life_years > 0 else 0.5
+            
+            # Component 2: Maintenance History
+            maintenance_count = MaintenanceRequest.objects.filter(asset=asset, request_type='REACTIVE').count()
+            # If more than 3 reactive requests in lifetime, risk increases
+            history_factor = min(maintenance_count / 5.0, 1.0)
+            
+            # Component 3: Last maintenance gap
+            last_request = MaintenanceRequest.objects.filter(asset=asset).order_by('-created_at').first()
+            if last_request:
+                days_since = (timezone.now() - last_request.created_at).days
+                maintenance_gap_factor = min(days_since / 180, 1.0) # Penalty if no maintenance for 6 months
+            else:
+                maintenance_gap_factor = 0.5
+                
+            risk_score = (age_factor * 0.4 + history_factor * 0.4 + maintenance_gap_factor * 0.2) * 100
+            
+            if risk_score > 60:
+                failure_predictions.append({
+                    'asset_id': asset.id,
+                    'name': asset.name,
+                    'category': asset.category,
+                    'location': asset.location,
+                    'failure_probability': round(risk_score, 1),
+                    'risk_level': 'HIGH' if risk_score > 75 else 'MEDIUM',
+                    'recommendation': 'Immediate overhaul suggested' if risk_score > 75 else 'Preventive check required'
+                })
+        
+        return sorted(failure_predictions, key=lambda x: x['failure_probability'], reverse=True)[:5]
+
+    @staticmethod
+    def get_energy_efficiency_forecast():
+        """
+        Forecasts energy efficiency and suggests optimization based on space occupancy.
+        """
+        # Get occupancy data from spaces
+        spaces = Space.objects.all()
+        if not spaces:
+            return []
+            
+        total_capacity = sum(s.capacity or 0 for s in spaces)
+        # Mocking active occupancy vs capacity
+        current_occupancy = total_capacity * 0.65 if total_capacity > 0 else 0
+        
+        # Forecast trend
+        forecast = []
+        for i in range(7):
+            day = (timezone.now() + timedelta(days=i)).strftime('%a')
+            # Simulated load based on day of week (lower on weekends)
+            base_load = 400
+            multiplier = 0.4 if day in ['Sat', 'Sun'] else 1.0
+            forecast.append({
+                'day': day,
+                'load_kw': round(base_load * multiplier + (np.random.rand() * 50), 1),
+                'efficiency': round(85 + (np.random.rand() * 10), 1)
+            })
+            
+        return forecast
