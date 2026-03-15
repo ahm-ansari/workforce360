@@ -35,16 +35,15 @@ import {
     BarChart,
     Bar
 } from 'recharts';
-import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import PsychologyIcon from '@mui/icons-material/Psychology';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import EngineeringIcon from '@mui/icons-material/Engineering';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
+import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
+import SpeedIcon from '@mui/icons-material/Speed';
+import BoltIcon from '@mui/icons-material/Bolt';
+import ConstructionIcon from '@mui/icons-material/Construction';
 import api from '@/services/api';
 
 const COLORS = ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff', '#4f46e5'];
@@ -56,18 +55,22 @@ export default function AnalysisPage() {
     const [marketData, setMarketData] = useState<any>(null);
     const [projectRiskData, setProjectRiskData] = useState<any>(null);
     const [financeData, setFinanceData] = useState<any>(null);
+    const [summaryData, setSummaryData] = useState<any>(null);
+    const [cafmData, setCafmData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [hiringRes, resourceRes, leadRes, marketRes, riskRes, financeRes] = await Promise.all([
+                const [hiringRes, resourceRes, leadRes, marketRes, riskRes, financeRes, summaryRes, cafmRes] = await Promise.all([
                     api.get('analysis/hiring/'),
                     api.get('analysis/availability/'),
                     api.get('analysis/leads/'),
                     api.get('analysis/market/'),
                     api.get('analysis/projects/risk/'),
-                    api.get('analysis/finance/cashflow/')
+                    api.get('analysis/finance/cashflow/'),
+                    api.get('analysis/summary/'),
+                    api.get('analysis/cafm/')
                 ]);
                 setHiringData(hiringRes.data);
                 setResourceData(resourceRes.data);
@@ -75,6 +78,8 @@ export default function AnalysisPage() {
                 setMarketData(marketRes.data);
                 setProjectRiskData(riskRes.data);
                 setFinanceData(financeRes.data);
+                setSummaryData(summaryRes.data);
+                setCafmData(cafmRes.data);
             } catch (error) {
                 console.error("Failed to fetch analysis data", error);
             } finally {
@@ -331,7 +336,7 @@ export default function AnalysisPage() {
 
                 {/* 7. Active Project Risks */}
                 <Grid size={{ xs: 12, md: 5 }}>
-                    <Card sx={{ borderRadius: 4, border: '1px solid rgba(0,0,0,0.05)', height: '100%' }}>
+                    <Card sx={{ borderRadius: 4, border: '1px solid rgba(0,0,0,0.05)', height: '100%', bgcolor: '#fffcfc' }}>
                         <CardContent sx={{ p: 3 }}>
                             <Typography variant="h6" fontWeight={700} sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <WarningAmberIcon color="warning" /> Predicted Project Risks
@@ -362,6 +367,151 @@ export default function AnalysisPage() {
                                     </Typography>
                                 )}
                             </List>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                {/* 8. NEW: CAFM Predictive Intelligence */}
+                <Grid size={{ xs: 12, md: 7 }}>
+                    <Card sx={{ 
+                        borderRadius: 4, 
+                        border: '1px solid rgba(0,0,0,0.05)', 
+                        height: '100%',
+                        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+                    }}>
+                        <CardContent sx={{ p: 3 }}>
+                            <Typography variant="h6" fontWeight={700} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <EngineeringIcon color="primary" /> Asset Failure Prediction (CAFM)
+                            </Typography>
+                            <Grid container spacing={2}>
+                                {cafmData?.asset_failure_predictions?.map((asset: any, idx: number) => (
+                                    <Grid size={{ xs: 12, sm: 6 }} key={idx}>
+                                        <Paper variant="outlined" sx={{ p: 2, borderRadius: 3, bgcolor: asset.risk_level === 'HIGH' ? 'rgba(239, 68, 68, 0.02)' : 'white' }}>
+                                            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                                                <Typography variant="subtitle2" fontWeight={700}>{asset.name}</Typography>
+                                                <Chip label={`${asset.failure_probability}%`} size="small" color={asset.risk_level === 'HIGH' ? 'error' : 'warning'} variant="soft" />
+                                            </Stack>
+                                            <Typography variant="caption" color="text.secondary" display="block">Cat: {asset.category} | Loc: {asset.location}</Typography>
+                                            <Typography variant="caption" sx={{ mt: 1, display: 'block', fontWeight: 700, color: asset.risk_level === 'HIGH' ? 'error.main' : 'warning.main' }}>
+                                                Action: {asset.recommendation}
+                                            </Typography>
+                                        </Paper>
+                                    </Grid>
+                                ))}
+                            </Grid>
+
+                            <Box sx={{ mt: 4 }}>
+                                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <BoltIcon sx={{ color: '#eab308' }} /> 7-Day Energy Load Forecast
+                                </Typography>
+                                <Box sx={{ height: 180 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={cafmData?.energy_efficiency_forecast || []}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis dataKey="day" fontSize={10} stroke="#94a3b8" />
+                                            <YAxis fontSize={10} stroke="#94a3b8" />
+                                            <RechartsTooltip />
+                                            <Line type="monotone" dataKey="load_kw" stroke="#eab308" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                            <Line type="monotone" dataKey="efficiency" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </Box>
+                                <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                                    <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#eab308' }}>● Load (kW)</Typography>
+                                    <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#10b981' }}>○ Efficiency (%)</Typography>
+                                </Stack>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                {/* 9. NEW: Recruitment Intelligence */}
+                <Grid size={{ xs: 12, md: 5 }}>
+                    <Card sx={{ borderRadius: 4, border: '1px solid rgba(0,0,0,0.05)', height: '100%', bgcolor: '#f5f3ff' }}>
+                        <CardContent sx={{ p: 3 }}>
+                            <Typography variant="h6" fontWeight={800} sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1, color: '#6d28d9' }}>
+                                <GroupAddIcon /> Recruitment AI Insights
+                            </Typography>
+                            
+                            <Box sx={{ p: 3, borderRadius: 4, bgcolor: 'white', mb: 3, border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+                                <Typography variant="caption" color="text.secondary" fontWeight={800}>PREDICTED TIME TO FILL</Typography>
+                                <Typography variant="h3" fontWeight={900} color="#6d28d9" sx={{ my: 1 }}>
+                                    {hiringData?.prediction?.predicted_time_to_fill_days || 0} <Typography component="span" variant="h5">Days</Typography>
+                                </Typography>
+                                <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                                    Target Position: <strong>{hiringData?.prediction?.job_title}</strong>
+                                </Typography>
+                            </Box>
+
+                            <Grid container spacing={2}>
+                                <Grid size={{ xs: 6 }}>
+                                    <Paper elevation={0} sx={{ p: 2, borderRadius: 3, textAlign: 'center', border: '1px solid #ddd6fe' }}>
+                                        <Typography variant="h5" fontWeight={900}>{hiringData?.stats?.total_candidates || 0}</Typography>
+                                        <Typography variant="caption" fontWeight={700} color="text.secondary">TOTAL APPLICANTS</Typography>
+                                    </Paper>
+                                </Grid>
+                                <Grid size={{ xs: 6 }}>
+                                    <Paper elevation={0} sx={{ p: 2, borderRadius: 3, textAlign: 'center', border: '1px solid #ddd6fe' }}>
+                                        <Typography variant="h5" fontWeight={900} color="#10b981">{hiringData?.stats?.conversion_rate?.toFixed(1) || 0}%</Typography>
+                                        <Typography variant="caption" fontWeight={700} color="text.secondary">HIRE RATE</Typography>
+                                    </Paper>
+                                </Grid>
+                            </Grid>
+
+                            <Box sx={{ mt: 3 }}>
+                                <Typography variant="subtitle2" fontWeight={800} gutterBottom>Application Sources</Typography>
+                                <Box sx={{ height: 160 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={hiringData?.stats?.by_source?.map((s: any) => ({ name: s.source, value: s.count })) || []}
+                                                innerRadius={40}
+                                                outerRadius={60}
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                            >
+                                                {hiringData?.stats?.by_source?.map((_: any, index: number) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <RechartsTooltip />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </Box>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                {/* 10. NEW: Operational Summary Grid */}
+                <Grid size={{ xs: 12 }}>
+                    <Card sx={{ 
+                        borderRadius: 5, 
+                        border: 'none', 
+                        boxShadow: '0 4px 25px rgba(0,0,0,0.05)',
+                        bgcolor: '#1e293b',
+                        color: 'white',
+                        mt: 2
+                    }}>
+                        <CardContent sx={{ p: 4 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+                                <DashboardCustomizeIcon sx={{ color: '#38bdf8' }} />
+                                <Typography variant="h5" fontWeight={800}>Cross-Module Operational Pulse</Typography>
+                            </Box>
+                            <Grid container spacing={4}>
+                                {summaryData?.counts && Object.entries(summaryData.counts).map(([key, value], idx) => (
+                                    <Grid size={{ xs: 12, sm: 4 }} key={key}>
+                                        <Box sx={{ textAlign: 'center' }}>
+                                            <Typography variant="h2" fontWeight={900} color={['#38bdf8', '#818cf8', '#f472b6'][idx % 3]}>
+                                                {value as number}
+                                            </Typography>
+                                            <Typography variant="h6" sx={{ opacity: 0.6, textTransform: 'uppercase', fontSize: '0.9rem', fontWeight: 800, letterSpacing: 1 }}>
+                                                {key.replace('_', ' ')}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                ))}
+                            </Grid>
                         </CardContent>
                     </Card>
                 </Grid>
