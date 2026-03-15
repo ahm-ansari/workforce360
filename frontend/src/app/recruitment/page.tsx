@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Grid, Card, CardContent, Typography, CircularProgress, Button } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import api from '@/lib/axios';
 
 interface Job {
     id: number;
@@ -28,8 +28,8 @@ export default function RecruitmentDashboard() {
         const fetchData = async () => {
             try {
                 const [jobsRes, candidatesRes] = await Promise.all([
-                    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/recruitment/jobs/`).catch(() => ({ data: [] })),
-                    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/recruitment/candidates/`).catch(() => ({ data: [] })),
+                    api.get('recruitment/jobs/').catch(() => ({ data: [] })),
+                    api.get('recruitment/candidates/').catch(() => ({ data: [] })),
                 ]);
                 setJobs(jobsRes.data || []);
                 setCandidates(candidatesRes.data || []);
