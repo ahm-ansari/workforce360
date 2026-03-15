@@ -135,6 +135,7 @@ const navSections: NavSection[] = [
                     { label: 'Spaces', path: '/cafm/spaces', icon: <DashboardIcon />, roles: ['admin', 'manager', 'facility manager'] },
                     { label: 'Assets', path: '/cafm/assets', icon: <StorageIcon />, roles: ['admin', 'manager', 'finance', 'facility manager'] },
                     { label: 'Maintenance', path: '/cafm/maintenance', icon: <EngineeringIcon />, roles: ['admin', 'manager', 'employee', 'technician', 'facility manager', 'helpdesk operator', 'client user'] },
+                    { label: 'PPM Schedules', path: '/cafm/ppm', icon: <EventAvailableIcon />, roles: ['admin', 'manager', 'facility manager', 'technician'] },
                 ]
             },
             { label: 'Visitors', path: '/visitors', icon: <SecurityIcon />, roles: ['admin', 'security'] },
