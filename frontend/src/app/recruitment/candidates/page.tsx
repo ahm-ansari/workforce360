@@ -9,7 +9,7 @@ import {
     Chip,
     CircularProgress,
 } from '@mui/material';
-import axios from 'axios';
+import api from '@/lib/axios';
 
 interface Candidate {
     id: number;
@@ -27,8 +27,8 @@ export default function CandidatesPipeline() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios
-            .get(`${process.env.NEXT_PUBLIC_API_URL}/api/recruitment/candidates/`)
+        api
+            .get('recruitment/candidates/')
             .then((res) => setCandidates(res.data))
             .catch((err) => console.error(err))
             .finally(() => setLoading(false));
