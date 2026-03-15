@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HiringPredictionView, ResourceAvailabilityView, AnalysisSummaryView, BusinessLeadAnalysisView, MarketAnalysisView, ProjectRiskView, FinancePredictionView
+from .views import HiringPredictionView, ResourceAvailabilityView, AnalysisSummaryView, BusinessLeadAnalysisView, MarketAnalysisView, ProjectRiskView, FinancePredictionView, CAFMAnalysisView
 
 urlpatterns = [
     path('hiring/', HiringPredictionView.as_view(), name='hiring-prediction'),
@@ -9,4 +9,5 @@ urlpatterns = [
     path('projects/risk/', ProjectRiskView.as_view(), name='project-risk'),
     path('finance/cashflow/', FinancePredictionView.as_view(), name='finance-cashflow'),
     path('summary/', AnalysisSummaryView.as_view(), name='analysis-summary'),
+    path('cafm/', CAFMAnalysisView.as_view(), name='cafm-analysis'),
 ]
