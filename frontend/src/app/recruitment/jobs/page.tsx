@@ -14,7 +14,7 @@ import {
     Button,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import api from '@/lib/axios';
 
 interface Job {
     id: number;
@@ -31,8 +31,8 @@ export default function JobsList() {
     const router = useRouter();
 
     useEffect(() => {
-        axios
-            .get(`${process.env.NEXT_PUBLIC_API_URL}/api/recruitment/jobs/`)
+        api
+            .get('recruitment/jobs/')
             .then((res) => setJobs(res.data))
             .catch((err) => console.error(err))
             .finally(() => setLoading(false));
