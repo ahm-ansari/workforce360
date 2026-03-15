@@ -85,7 +85,7 @@ export default function AssetDetail() {
                         <CardContent sx={{ p: 3 }}>
                             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
                                 <Typography variant="caption" color="text.secondary" fontWeight={700}>
-                                    {asset.asset_type.toUpperCase()}
+                                    {asset.asset_type ? asset.asset_type.toUpperCase() : 'ASSET'}
                                 </Typography>
                                 <Chip
                                     label={asset.status}
