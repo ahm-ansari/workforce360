@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from .models import TicketCategory, SupportTicket, TicketMessage, EscalationMatrix
 from django.contrib.auth import get_user_model
 
@@ -45,8 +46,6 @@ class SupportTicketSerializer(serializers.ModelSerializer):
     time_to_assign_seconds = serializers.SerializerMethodField()
     time_to_resolve_after_assignment_seconds = serializers.SerializerMethodField()
 
-    department_name = serializers.ReadOnlyField(source='department.name')
-    
     class Meta:
         model = SupportTicket
         fields = [
