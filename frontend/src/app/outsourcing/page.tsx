@@ -200,7 +200,7 @@ export default function OutsourcingOverview() {
 
             <Grid container spacing={3} sx={{ mb: 6 }}>
                 {statConfig.map((stat) => (
-                    <Grid size={{ xs: 12, sm: 6, md: 3 }} key={stat.title}>
+                    <Grid item xs={12} sm={6} md={3} key={stat.title}>
                         <StatCard
                             {...stat}
                             onClick={() => router.push(stat.path)}
@@ -211,7 +211,7 @@ export default function OutsourcingOverview() {
 
             <Grid container spacing={3}>
                 {/* Trends Chart */}
-                <Grid size={{ xs: 12, md: 8 }}>
+                <Grid item xs={12} md={8}>
                     <Card sx={{ borderRadius: 3, p: 3, height: '100%' }}>
                         <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>
                             Staffing Request Trends
@@ -240,7 +240,7 @@ export default function OutsourcingOverview() {
                 </Grid>
 
                 {/* Client Breakdown */}
-                <Grid size={{ xs: 12, md: 4 }}>
+                <Grid item xs={12} md={4}>
                     <Card sx={{ borderRadius: 3, p: 3, height: '100%' }}>
                         <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>
                             Top Clients by Placements
@@ -284,10 +284,10 @@ export default function OutsourcingOverview() {
                 </Grid>
 
                 {/* Actionable Sections */}
-                <Grid size={{ xs: 12 }}>
+                <Grid item xs={12}>
                     <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
                         <Grid container>
-                            <Grid size={{ xs: 12, md: 6 }}>
+                            <Grid item xs={12} md={6}>
                                 <Box sx={{ p: 4 }}>
                                     <Typography variant="h5" fontWeight={700} gutterBottom>
                                         Management Quick Access
@@ -302,7 +302,7 @@ export default function OutsourcingOverview() {
                                             { icon: <AssignmentIndIcon />, title: 'Staff Directory', path: '/outsourcing/staff' },
                                             { icon: <DescriptionIcon />, title: 'Contracts', path: '/outsourcing/contracts' },
                                         ].map((item) => (
-                                            <Grid size={{ xs: 6 }} key={item.title}>
+                                            <Grid item xs={6} key={item.title}>
                                                 <Button
                                                     fullWidth
                                                     variant="outlined"
@@ -317,7 +317,7 @@ export default function OutsourcingOverview() {
                                     </Grid>
                                 </Box>
                             </Grid>
-                            <Grid size={{ xs: 12, md: 6 }} sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                            <Grid item xs={12} md={6} sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                                 <Typography variant="h4" fontWeight={800} gutterBottom>
                                     Grow Your Network
                                 </Typography>
