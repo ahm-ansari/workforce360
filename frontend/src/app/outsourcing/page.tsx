@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Box,
     Typography,
+    Grid,
     Card,
     CardContent,
     Stack,
@@ -11,7 +12,6 @@ import {
     CircularProgress,
     Divider
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import {
     Assignment as AssignmentIcon,
     AssignmentInd as AssignmentIndIcon,
