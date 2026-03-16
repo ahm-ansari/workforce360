@@ -12,6 +12,7 @@ import {
     MenuItem,
     Stack,
     Alert,
+    IconButton,
     CircularProgress,
     Autocomplete
 } from '@mui/material';
@@ -55,7 +56,6 @@ export default function AssignStaff() {
                 setEmployees(empRes.data);
                 setCompanies(compRes.data);
 
-                // If requestId is provided, auto-fill the client
                 if (requestIdParam) {
                     const selectedReq = reqRes.data.find((r: any) => r.id.toString() === requestIdParam);
                     if (selectedReq) {
@@ -91,7 +91,7 @@ export default function AssignStaff() {
                 start_date: selectedReq.start_date || ''
             }));
         } else {
-            setFormData(prev => ({ ...prev, staffing_request: val }));
+            setFormData(prev => ({ ...prev, staffing_request: val, client: '' }));
         }
     };
 
@@ -118,51 +118,52 @@ export default function AssignStaff() {
 
     if (fetchingData) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress />
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+                <CircularProgress size={40} />
             </Box>
         );
     }
 
     return (
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 4 }}>
-                <Button
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => router.back()}
-                    variant="text"
-                >
-                    Back
-                </Button>
-                <Typography variant="h4" fontWeight={700}>
-                    Assign Staff to Client
-                </Typography>
+                <IconButton onClick={() => router.back()} sx={{ bgcolor: 'action.hover' }}>
+                    <ArrowBackIcon />
+                </IconButton>
+                <Box>
+                    <Typography variant="h4" fontWeight={800}>
+                        Assign Personnel
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                        Create a new client placement for an employee
+                    </Typography>
+                </Box>
             </Stack>
 
-            {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+            {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
 
             <form onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
+                <Grid container spacing={4}>
                     <Grid size={{ xs: 12, md: 8 }}>
-                        <Card sx={{ borderRadius: 2 }}>
-                            <CardContent sx={{ p: 3 }}>
-                                <Typography variant="h6" fontWeight={600} gutterBottom>
-                                    Assignment Details
+                        <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                            <CardContent sx={{ p: 4 }}>
+                                <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                                    Placement Foundation
                                 </Typography>
-                                <Stack spacing={3} sx={{ mt: 2 }}>
+                                <Stack spacing={3}>
                                     <TextField
                                         select
                                         fullWidth
-                                        label="Staffing Request (Optional)"
+                                        label="Link to Staffing Request"
                                         name="staffing_request"
                                         value={formData.staffing_request}
                                         onChange={handleRequestChange}
-                                        helperText="Select a request to auto-fill details"
+                                        helperText="Selecting a request will prepopulate client and role details"
                                     >
-                                        <MenuItem value=""><em>None / Direct Placement</em></MenuItem>
+                                        <MenuItem value=""><em>Direct Placement (No Request)</em></MenuItem>
                                         {requests.map((req: any) => (
                                             <MenuItem key={req.id} value={req.id}>
-                                                {req.title} ({req.client_name})
+                                                {req.title} — {req.client_name}
                                             </MenuItem>
                                         ))}
                                     </TextField>
@@ -171,7 +172,7 @@ export default function AssignStaff() {
                                         options={employees}
                                         getOptionLabel={(option: any) => option.full_name || `Employee #${option.id}`}
                                         renderInput={(params) => (
-                                            <TextField {...params} label="Select Employee" required />
+                                            <TextField {...params} label="Select Personnel" required placeholder="Search by name..." />
                                         )}
                                         onChange={(_, newValue) => {
                                             setFormData(prev => ({ ...prev, employee: newValue ? newValue.id : '' }));
@@ -181,7 +182,7 @@ export default function AssignStaff() {
                                     <TextField
                                         select
                                         fullWidth
-                                        label="Client Company"
+                                        label="Target Client"
                                         name="client"
                                         value={formData.client}
                                         onChange={handleChange}
@@ -197,21 +198,21 @@ export default function AssignStaff() {
 
                                     <TextField
                                         fullWidth
-                                        label="Role at Client"
+                                        label="Designation / Role"
                                         name="role"
                                         value={formData.role}
                                         onChange={handleChange}
                                         required
-                                        placeholder="e.g. Lead Developer"
+                                        placeholder="e.g. Senior Project Manager"
                                     />
                                 </Stack>
                             </CardContent>
                         </Card>
 
-                        <Card sx={{ borderRadius: 2, mt: 3 }}>
-                            <CardContent sx={{ p: 3 }}>
-                                <Typography variant="h6" fontWeight={600} gutterBottom>
-                                    Notes & Remarks
+                        <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', mt: 4 }}>
+                            <CardContent sx={{ p: 4 }}>
+                                <Typography variant="h6" fontWeight={700} gutterBottom>
+                                    Internal Coordination Notes
                                 </Typography>
                                 <TextField
                                     fullWidth
@@ -219,63 +220,67 @@ export default function AssignStaff() {
                                     value={formData.notes}
                                     onChange={handleChange}
                                     multiline
-                                    rows={3}
-                                    placeholder="Add any specific instructions or terms for this placement..."
+                                    rows={4}
+                                    placeholder="Add internal notes about this placement, specific client requirements, or unique terms..."
                                 />
                             </CardContent>
                         </Card>
                     </Grid>
 
                     <Grid size={{ xs: 12, md: 4 }}>
-                        <Stack spacing={3}>
-                            <Card sx={{ borderRadius: 2 }}>
-                                <CardContent sx={{ p: 3 }}>
-                                    <Typography variant="h6" fontWeight={600} gutterBottom>
-                                        Financials & Dates
+                        <Stack spacing={4}>
+                            <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                                <CardContent sx={{ p: 4 }}>
+                                    <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                                        Commercials & Timing
                                     </Typography>
-                                    <Stack spacing={3} sx={{ mt: 2 }}>
+                                    <Stack spacing={3}>
                                         <TextField
                                             fullWidth
-                                            label="Billing Rate ($/hr)"
+                                            label="Hourly Billing Rate"
                                             name="billing_rate"
                                             type="number"
-                                            inputProps={{ min: 0 }}
+                                            inputProps={{ min: 0, step: "0.01" }}
                                             value={formData.billing_rate}
                                             onChange={handleChange}
                                             required
+                                            slotProps={{
+                                                input: {
+                                                    startAdornment: <Typography sx={{ mr: 1, color: 'text.secondary' }}>$</Typography>
+                                                }
+                                            }}
                                         />
                                         <TextField
                                             fullWidth
-                                            label="Start Date"
+                                            label="Commencement Date"
                                             name="start_date"
                                             type="date"
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             value={formData.start_date}
                                             onChange={handleChange}
                                             required
                                         />
                                         <TextField
                                             fullWidth
-                                            label="End Date"
+                                            label="Projected End Date"
                                             name="end_date"
                                             type="date"
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             value={formData.end_date}
                                             onChange={handleChange}
                                         />
                                         <TextField
                                             select
                                             fullWidth
-                                            label="Status"
+                                            label="Initial Status"
                                             name="status"
                                             value={formData.status}
                                             onChange={handleChange}
                                             required
                                         >
-                                            <MenuItem value="ACTIVE">Active</MenuItem>
-                                            <MenuItem value="ON_LEAVE">On Leave</MenuItem>
-                                            <MenuItem value="COMPLETED">Completed</MenuItem>
-                                            <MenuItem value="TERMINATED">Terminated</MenuItem>
+                                            <MenuItem value="ACTIVE">Active Deployment</MenuItem>
+                                            <MenuItem value="ON_LEAVE">Temporary Absence</MenuItem>
+                                            <MenuItem value="COMPLETED">Assignment Finished</MenuItem>
                                         </TextField>
                                     </Stack>
                                 </CardContent>
@@ -288,9 +293,15 @@ export default function AssignStaff() {
                                 type="submit"
                                 disabled={loading}
                                 startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-                                sx={{ borderRadius: 2, height: 50 }}
+                                sx={{ 
+                                    borderRadius: 3, 
+                                    py: 2, 
+                                    fontSize: '1.1rem', 
+                                    fontWeight: 700,
+                                    boxShadow: '0 8px 16px rgba(59, 130, 246, 0.25)'
+                                }}
                             >
-                                {loading ? 'Assigning...' : 'Confirm Assignment'}
+                                {loading ? 'Processing...' : 'Deploy Personnel'}
                             </Button>
                         </Stack>
                     </Grid>
