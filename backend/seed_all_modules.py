@@ -274,27 +274,94 @@ def seed_all():
     # 7. Outsourcing
     try:
         print("Seeding Outsourcing Module...")
+        from apps.outsourcing.models import StaffingRequest, OutsourcedStaff, StaffingContract, StaffingTimesheet
+        StaffingTimesheet.objects.all().delete()
+        OutsourcedStaff.objects.all().delete()
         StaffingContract.objects.all().delete()
         StaffingRequest.objects.all().delete()
+        
         companies = list(Company.objects.all())
-        for _ in range(5):
-            req = StaffingRequest.objects.create(
-                client=random.choice(companies) if companies else None,
-                title=f"Req-{random.randint(10000, 99999)}",
-                description="Staffing needs.",
-                start_date=date.today(),
-                end_date=date.today() + timedelta(days=180),
-                status=random.choice(['PENDING', 'APPROVED', 'FULLFILLED'])
-            )
-            StaffingContract.objects.create(
-                client=req.client,
-                contract_number=f"CONT-{random.randint(100000, 999999)}",
-                start_date=date.today(),
-                end_date=date.today() + timedelta(days=180),
-                terms_and_conditions="Sample terms of service for staffing."
-            )
+        if not companies:
+            print("No companies found for outsourcing. Skipping...")
+        else:
+            requests = []
+            for _ in range(10):
+                client = random.choice(companies)
+                req = StaffingRequest.objects.create(
+                    client=client,
+                    title=random.choice([
+                        "Senior Backend Developer (Python/Django)",
+                        "Facility Manager",
+                        "HVAC Support Technician",
+                        "Security Supervisor",
+                        "Front-end Developer (React)",
+                        "Accountant",
+                        "HR Coordinator",
+                        "Administrative Assistant"
+                    ]),
+                    description="Requirement for experienced personnel to work on-site at client location. Must have relevant certifications and 3+ years of experience.",
+                    required_skills="Python, Django, Communication, Leadership",
+                    experience_years=Decimal(random.uniform(2, 8)).quantize(Decimal('0.1')),
+                    number_of_positions=random.randint(1, 5),
+                    proposed_rate=Decimal(random.randint(40, 150)),
+                    start_date=date.today() - timedelta(days=random.randint(0, 30)),
+                    end_date=date.today() + timedelta(days=random.randint(90, 365)),
+                    status=random.choice(['OPEN', 'IN_PROGRESS', 'PARTIALLY_FILLED', 'FILLED']),
+                    priority=random.choice(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
+                    created_by=random.choice(users)
+                )
+                requests.append(req)
+            
+            contracts = []
+            for comp in companies[:3]: # Create contracts for first 3 companies
+                contract = StaffingContract.objects.create(
+                    client=comp,
+                    contract_number=f"SC-{random.randint(1000, 9999)}",
+                    start_date=date.today() - timedelta(days=60),
+                    end_date=date.today() + timedelta(days=300),
+                    terms_and_conditions="Standard staffing agreement with net-30 payment terms and 15% service fee.",
+                    total_value=Decimal(random.randint(50000, 200000)),
+                    status='ACTIVE'
+                )
+                contracts.append(contract)
+
+            # Placements (OutsourcedStaff)
+            placements = []
+            available_employees = employees[:20] # Take first 20 employees for outsourcing
+            for i in range(min(len(available_employees), 15)):
+                req = random.choice(requests)
+                placement = OutsourcedStaff.objects.create(
+                    staffing_request=req,
+                    employee=available_employees[i],
+                    client=req.client,
+                    role=req.title,
+                    billing_rate=req.proposed_rate or Decimal(75.00),
+                    start_date=date.today() - timedelta(days=random.randint(10, 45)),
+                    status='ACTIVE'
+                )
+                placements.append(placement)
+
+            # Timesheets
+            for placement in placements:
+                for week in range(4):
+                    start_w = date.today() - timedelta(days=(week+1)*7)
+                    end_w = start_w + timedelta(days=6)
+                    hours = Decimal(random.randint(35, 45))
+                    StaffingTimesheet.objects.create(
+                        placement=placement,
+                        start_date=start_w,
+                        end_date=end_w,
+                        total_hours=hours,
+                        billable_amount=hours * placement.billing_rate,
+                        status=random.choice(['SUBMITTED', 'APPROVED', 'INVOICED']),
+                        approved_by=random.choice(users) if random.random() > 0.3 else None,
+                        approval_date=datetime.now() if random.random() > 0.3 else None,
+                        notes="Regular weekly hours"
+                    )
     except Exception as e:
         print(f"Error seeding Outsourcing: {e}")
+        import traceback
+        traceback.print_exc()
 
     # 8. Marketing
     try:
