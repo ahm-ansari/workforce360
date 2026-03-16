@@ -2,6 +2,7 @@ import os
 import django
 import random
 from datetime import datetime, timedelta
+from django.utils import timezone
 
 # Set up Django
 import dotenv
@@ -10,12 +11,13 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from apps.support.models import TicketCategory, SupportTicket, TicketMessage
+from apps.cafm.models import Facility, Space, Asset
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
 def seed_support():
-    print("Seeding Support Module...")
+    print("Seeding Enhanced Support Module...")
     
     # 1. Categories
     categories = [
@@ -35,60 +37,95 @@ def seed_support():
         )
         cat_objs.append(obj)
     
-    # 2. Tickets
-    users = list(User.objects.all())
-    if not users:
-        print("No users found. Please seed users first.")
-        return
+    # 2. CAFM Resources
+    facilities = list(Facility.objects.all())
+    spaces = list(Space.objects.all())
+    assets = list(Asset.objects.all())
 
+    # 3. Users
+    users = list(User.objects.all())
     staff_users = list(User.objects.filter(is_staff=True))
     if not staff_users:
         staff_users = users[:2]
 
     subjects = [
-        "Unable to access the CRM portal",
-        "Error in monthly payroll calculation",
-        "New contractor onboarding request",
-        "Project Alpha milestone delay notice",
-        "Facility HVAC unit abnormal noise",
-        "Invoice #INV-2024-001 dispute",
-        "Request for additional cloud storage",
-        "Missing attendance records for last week",
+        "Network switch in Rack A-1 failure",
+        "HVAC system leaking water in Server Room",
+        "Elevator #3 emergency alarm triggered",
+        "Broken floor tile in Main Lobby",
+        "Lighting panel not responding in Office B",
+        "Request for workspace ergonomic assessment",
+        "Access control card reader malfunction",
+        "Pantry coffee machine maintenance required",
     ]
 
-    for i in range(15):
+    # Clear existing tickets to re-seed with better data
+    SupportTicket.objects.all().delete()
+
+    for i in range(20):
         user = random.choice(users)
-        assigned_to = random.choice(staff_users) if random.random() > 0.3 else None
+        assigned_to = random.choice(staff_users) if random.random() > 0.2 else None
         status = random.choice(['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'])
         priority = random.choice(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'])
+        
+        # Link CAFM if it's a facility issue
+        facility = random.choice(facilities) if facilities and random.random() > 0.4 else None
+        space = None
+        asset = None
+        if facility:
+            facility_spaces = [s for s in spaces if s.facility_id == facility.id]
+            if facility_spaces:
+                space = random.choice(facility_spaces)
+            
+            # Optionally link asset
+            facility_assets = [a for a in assets if a.facility_id == facility.id]
+            if facility_assets:
+                asset = random.choice(facility_assets)
+
+        created_at = timezone.now() - timedelta(days=random.randint(1, 30), hours=random.randint(0, 23))
         
         ticket = SupportTicket.objects.create(
             user=user,
             category=random.choice(cat_objs),
             title=random.choice(subjects),
-            description="I am experiencing issues with the system. Please help me resolve this. This is a sample ticket description generated for testing purposes.",
+            description="Automatic sample description for " + (asset.name if asset else "general maintenance") + ". Reported issue requires immediate attention from the facilities team.",
             status=status,
             priority=priority,
             assigned_to=assigned_to,
-            created_at=timezone_now() - timedelta(days=random.randint(1, 15))
+            facility=facility,
+            space=space,
+            asset=asset,
+            created_at=created_at
         )
+
+        # Set Timing Stats
+        if assigned_to:
+            ticket.assigned_at = created_at + timedelta(hours=random.randint(1, 4))
         
-        # 3. Messages
-        num_messages = random.randint(1, 5)
+        if status in ['IN_PROGRESS', 'RESOLVED', 'CLOSED']:
+            ticket.first_response_at = (ticket.assigned_at or created_at) + timedelta(minutes=random.randint(15, 120))
+        
+        if status in ['RESOLVED', 'CLOSED']:
+            ticket.resolved_at = ticket.first_response_at + timedelta(hours=random.randint(2, 48))
+        
+        ticket.sla_deadline = created_at + timedelta(hours=24)
+        ticket.save()
+        
+        # 4. Messages
+        num_messages = random.randint(2, 6)
         for j in range(num_messages):
             msg_user = user if j % 2 == 0 else (assigned_to or random.choice(staff_users))
+            msg_time = created_at + timedelta(minutes=(j+1)*30)
+            
             TicketMessage.objects.create(
                 ticket=ticket,
                 user=msg_user,
-                message=f"This is a sample message #{j+1} for ticket {ticket.ticket_id}. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                is_internal=random.random() < 0.2 if msg_user.is_staff else False
+                message=f"Interaction #{j+1} regarding {ticket.ticket_id}. Status is currently {status}.",
+                is_internal=random.random() < 0.1 if msg_user.is_staff else False,
+                created_at=msg_time
             )
 
-    print("Support module seeded successfully!")
-
-def timezone_now():
-    from django.utils import timezone
-    return timezone.now()
+    print("Enhanced Support module seeded successfully!")
 
 if __name__ == "__main__":
     seed_support()
