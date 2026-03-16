@@ -34,6 +34,9 @@ class SupportTicket(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     
+    # Department Integration
+    department = models.ForeignKey('employees.Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='support_tickets')
+    
     # CAFM Integration
     facility = models.ForeignKey('cafm.Facility', on_delete=models.SET_NULL, null=True, blank=True, related_name='support_tickets')
     space = models.ForeignKey('cafm.Space', on_delete=models.SET_NULL, null=True, blank=True, related_name='support_tickets')
@@ -103,3 +106,23 @@ class TicketMessage(models.Model):
 
     class Meta:
         ordering = ['created_at']
+
+class EscalationMatrix(models.Model):
+    LEVEL_CHOICES = [
+        (1, 'Level 1 - Support Executive'),
+        (2, 'Level 2 - Team Lead / Supervisor'),
+        (3, 'Level 3 - Manager / HOD'),
+    ]
+    department = models.ForeignKey('employees.Department', on_delete=models.CASCADE, related_name='escalations')
+    level = models.IntegerField(choices=LEVEL_CHOICES, default=1)
+    name = models.CharField(max_length=100)
+    designation = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20)
+    email = models.EmailField()
+    
+    def __str__(self):
+        return f"{self.department.name} - Level {self.level} ({self.name})"
+
+    class Meta:
+        ordering = ['department', 'level']
+        verbose_name_plural = "Escalation Matrices"
