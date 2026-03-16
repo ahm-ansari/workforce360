@@ -33,13 +33,47 @@ class SupportTicket(models.Model):
     category = models.ForeignKey(TicketCategory, on_delete=models.SET_NULL, null=True, related_name='tickets')
     title = models.CharField(max_length=255)
     description = models.TextField()
+    
+    # CAFM Integration
+    facility = models.ForeignKey('cafm.Facility', on_delete=models.SET_NULL, null=True, blank=True, related_name='support_tickets')
+    space = models.ForeignKey('cafm.Space', on_delete=models.SET_NULL, null=True, blank=True, related_name='support_tickets')
+    asset = models.ForeignKey('cafm.Asset', on_delete=models.SET_NULL, null=True, blank=True, related_name='support_tickets')
+    
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OPEN')
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='MEDIUM')
     assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_tickets')
     
+    # KPIs and Time Tracking
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    assigned_at = models.DateTimeField(null=True, blank=True)
+    first_response_at = models.DateTimeField(null=True, blank=True)
     resolved_at = models.DateTimeField(null=True, blank=True)
+    sla_deadline = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def response_time(self):
+        if self.first_response_at:
+            return self.first_response_at - self.created_at
+        return None
+
+    @property
+    def resolution_time(self):
+        if self.resolved_at:
+            return self.resolved_at - self.created_at
+        return None
+
+    @property
+    def time_to_assign(self):
+        if self.assigned_at:
+            return self.assigned_at - self.created_at
+        return None
+
+    @property
+    def time_to_resolve_after_assignment(self):
+        if self.resolved_at and self.assigned_at:
+            return self.resolved_at - self.assigned_at
+        return None
 
     def save(self, *args, **kwargs):
         if not self.ticket_id:
