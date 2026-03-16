@@ -18,18 +18,27 @@ import {
     Grid,
     Paper,
     Divider,
-    Autocomplete
+    Autocomplete,
+    Chip,
+    Collapse,
+    Avatar,
+    Tooltip
 } from '@mui/material';
 import {
     ArrowBack as ArrowBackIcon,
     Save as SaveIcon,
     Subject as SubjectIcon,
-    Category as CategoryIcon,
     PriorityHigh as PriorityIcon,
     CloudUpload as UploadIcon,
     Business as FacilityIcon,
     LocationOn as SpaceIcon,
-    Settings as AssetIcon
+    Settings as AssetIcon,
+    Groups as DeptIcon,
+    Person as AssignIcon,
+    Phone as PhoneIcon,
+    Email as EmailIcon,
+    EscalatorWarning as EscalationIcon,
+    OpenInNew as OpenInNewIcon
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import axios from '@/lib/axios';
@@ -40,6 +49,11 @@ export default function NewSupportTicket() {
     const [facilities, setFacilities] = useState<any[]>([]);
     const [spaces, setSpaces] = useState<any[]>([]);
     const [assets, setAssets] = useState<any[]>([]);
+    const [departments, setDepartments] = useState<any[]>([]);
+    const [staff, setStaff] = useState<any[]>([]);
+    const [filteredStaff, setFilteredStaff] = useState<any[]>([]);
+    const [escalationContacts, setEscalationContacts] = useState<any[]>([]);
+    const [deptEscalation, setDeptEscalation] = useState<any[]>([]);
     
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
@@ -51,6 +65,8 @@ export default function NewSupportTicket() {
         description: '',
         category: '',
         priority: 'MEDIUM',
+        department: null as number | null,
+        assigned_to: null as number | null,
         facility: null as number | null,
         space: null as number | null,
         asset: null as number | null
@@ -59,13 +75,20 @@ export default function NewSupportTicket() {
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                const [catsRes, facilitiesRes] = await Promise.all([
+                const [catsRes, facilitiesRes, deptsRes, staffRes, escalationRes] = await Promise.all([
                     axios.get('support/categories/'),
-                    axios.get('cafm/facilities/')
+                    axios.get('cafm/facilities/'),
+                    axios.get('employees/departments/'),
+                    axios.get('users/users/?is_staff=true'),
+                    axios.get('support/escalation-matrix/')
                 ]);
                 
                 setCategories(catsRes.data);
                 setFacilities(facilitiesRes.data);
+                setDepartments(deptsRes.data);
+                setStaff(staffRes.data);
+                setFilteredStaff(staffRes.data);
+                setEscalationContacts(escalationRes.data);
                 
                 if (catsRes.data.length > 0) {
                     setFormData(prev => ({ ...prev, category: catsRes.data[0].id }));
@@ -79,6 +102,16 @@ export default function NewSupportTicket() {
         };
         fetchInitialData();
     }, []);
+
+    // When department changes, filter the escalation contacts for that dept
+    useEffect(() => {
+        if (formData.department) {
+            const filtered = escalationContacts.filter(c => c.department === formData.department);
+            setDeptEscalation(filtered);
+        } else {
+            setDeptEscalation([]);
+        }
+    }, [formData.department, escalationContacts]);
 
     useEffect(() => {
         if (formData.facility) {
@@ -317,14 +350,134 @@ export default function NewSupportTicket() {
                                             <MenuItem value="CRITICAL">Critical - Safety/Security</MenuItem>
                                         </TextField>
 
-                                        <Box sx={{ p: 2, bgcolor: '#fef2f2', borderRadius: 3, border: '1px solid #fee2e2' }}>
-                                            <Typography variant="caption" fontWeight={700} color="#ef4444" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                <PriorityIcon fontSize="inherit" /> AUTOMATIC ESCALATION
-                                            </Typography>
-                                            <Typography variant="caption" color="#991b1b" display="block" sx={{ mt: 0.5 }}>
-                                                Critical tickets trigger immediate SMS alerts to the engineering on-call team.
-                                            </Typography>
-                                        </Box>
+                                        <Divider sx={{ my: 1 }}>
+                                            <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 700 }}>ROUTING & ASSIGNMENT</Typography>
+                                        </Divider>
+
+                                        <TextField
+                                            select
+                                            fullWidth
+                                            label="Target Department"
+                                            value={formData.department || ''}
+                                            onChange={(e) => {
+                                                const deptId = Number(e.target.value) || null;
+                                                setFormData(p => ({ ...p, department: deptId, assigned_to: null }));
+                                                // Ideally filter staff by dept here if dept info is in staff object
+                                            }}
+                                            slotProps={{
+                                                input: {
+                                                    startAdornment: <InputAdornment position="start"><DeptIcon fontSize="small" /></InputAdornment>
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value=""><em>Select Department</em></MenuItem>
+                                            {departments.map(d => <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>)}
+                                        </TextField>
+
+                                        <TextField
+                                            select
+                                            fullWidth
+                                            label="Assign To Personnel"
+                                            value={formData.assigned_to || ''}
+                                            onChange={(e) => setFormData(p => ({ ...p, assigned_to: Number(e.target.value) || null }))}
+                                            slotProps={{
+                                                input: {
+                                                    startAdornment: <InputAdornment position="start"><AssignIcon fontSize="small" /></InputAdornment>
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value=""><em>Auto-Assign later</em></MenuItem>
+                                            {staff.map(s => <MenuItem key={s.id} value={s.id}>{s.username} ({s.role_details?.name})</MenuItem>)}
+                                        </TextField>
+
+                                        {/* Live Escalation Preview */}
+                                        <Collapse in={deptEscalation.length > 0}>
+                                            <Box>
+                                                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+                                                    <Stack direction="row" spacing={0.8} alignItems="center">
+                                                        <EscalationIcon sx={{ fontSize: 16, color: '#4f46e5' }} />
+                                                        <Typography variant="caption" fontWeight={800} color="#4f46e5">
+                                                            ESCALATION CONTACTS
+                                                        </Typography>
+                                                    </Stack>
+                                                    <Tooltip title="View full escalation matrix">
+                                                        <Typography
+                                                            variant="caption"
+                                                            fontWeight={700}
+                                                            color="#6366f1"
+                                                            component="a"
+                                                            href="/help-support/escalation"
+                                                            sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 0.3, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                                        >
+                                                            View All <OpenInNewIcon sx={{ fontSize: 11 }} />
+                                                        </Typography>
+                                                    </Tooltip>
+                                                </Stack>
+                                                <Stack spacing={1}>
+                                                    {[1, 2, 3].map(level => {
+                                                        const c = deptEscalation.find(x => x.level === level);
+                                                        if (!c) return null;
+                                                        const levelColors: Record<number, { bg: string; color: string; label: string }> = {
+                                                            1: { bg: '#f0fdf4', color: '#16a34a', label: 'L1' },
+                                                            2: { bg: '#fffbeb', color: '#d97706', label: 'L2' },
+                                                            3: { bg: '#fef2f2', color: '#dc2626', label: 'L3' },
+                                                        };
+                                                        const lc = levelColors[level];
+                                                        return (
+                                                            <Box key={level} sx={{ p: 1.5, bgcolor: lc.bg, borderRadius: 2, border: `1px solid ${lc.color}30` }}>
+                                                                <Stack direction="row" spacing={1.5} alignItems="center">
+                                                                    <Avatar sx={{ width: 30, height: 30, bgcolor: lc.color, fontSize: '0.65rem', fontWeight: 900 }}>
+                                                                        {lc.label}
+                                                                    </Avatar>
+                                                                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                                                                        <Typography variant="caption" fontWeight={800} color="#1e293b" display="block" noWrap>
+                                                                            {c.name}
+                                                                        </Typography>
+                                                                        <Typography variant="caption" color="text.secondary" noWrap>
+                                                                            {c.designation}
+                                                                        </Typography>
+                                                                    </Box>
+                                                                    <Stack direction="row" spacing={0.5}>
+                                                                        <Tooltip title={c.phone}>
+                                                                            <IconButton
+                                                                                size="small"
+                                                                                component="a"
+                                                                                href={`tel:${c.phone}`}
+                                                                                sx={{ bgcolor: 'white', border: `1px solid ${lc.color}40`, color: lc.color, width: 26, height: 26 }}
+                                                                            >
+                                                                                <PhoneIcon sx={{ fontSize: 13 }} />
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                        <Tooltip title={c.email}>
+                                                                            <IconButton
+                                                                                size="small"
+                                                                                component="a"
+                                                                                href={`mailto:${c.email}`}
+                                                                                sx={{ bgcolor: 'white', border: `1px solid ${lc.color}40`, color: lc.color, width: 26, height: 26 }}
+                                                                            >
+                                                                                <EmailIcon sx={{ fontSize: 13 }} />
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                    </Stack>
+                                                                </Stack>
+                                                            </Box>
+                                                        );
+                                                    })}
+                                                </Stack>
+                                            </Box>
+                                        </Collapse>
+
+                                        {/* Fallback when no dept selected */}
+                                        {deptEscalation.length === 0 && (
+                                            <Box sx={{ p: 2, bgcolor: '#fef2f2', borderRadius: 3, border: '1px solid #fee2e2' }}>
+                                                <Typography variant="caption" fontWeight={700} color="#ef4444" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <PriorityIcon fontSize="inherit" /> AUTOMATIC ESCALATION
+                                                </Typography>
+                                                <Typography variant="caption" color="#991b1b" display="block" sx={{ mt: 0.5 }}>
+                                                    Select a department above to view the escalation contacts for your issue.
+                                                </Typography>
+                                            </Box>
+                                        )}
                                     </Stack>
                                 </CardContent>
                             </Card>
