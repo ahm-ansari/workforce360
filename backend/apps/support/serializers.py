@@ -1,5 +1,4 @@
-from rest_framework import serializers
-from .models import TicketCategory, SupportTicket, TicketMessage
+from .models import TicketCategory, SupportTicket, TicketMessage, EscalationMatrix
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -22,10 +21,19 @@ class TicketMessageSerializer(serializers.ModelSerializer):
         fields = ['id', 'ticket', 'user', 'user_details', 'message', 'attachment', 'is_internal', 'created_at']
         read_only_fields = ['user', 'created_at']
 
+class EscalationMatrixSerializer(serializers.ModelSerializer):
+    department_name = serializers.ReadOnlyField(source='department.name')
+    level_display = serializers.CharField(source='get_level_display', read_only=True)
+    
+    class Meta:
+        model = EscalationMatrix
+        fields = '__all__'
+
 class SupportTicketSerializer(serializers.ModelSerializer):
     user_details = UserSimpleSerializer(source='user', read_only=True)
     assigned_to_details = UserSimpleSerializer(source='assigned_to', read_only=True)
     category_name = serializers.ReadOnlyField(source='category.name')
+    department_name = serializers.ReadOnlyField(source='department.name')
     message_count = serializers.IntegerField(source='messages.count', read_only=True)
     
     facility_name = serializers.ReadOnlyField(source='facility.name')
@@ -37,10 +45,13 @@ class SupportTicketSerializer(serializers.ModelSerializer):
     time_to_assign_seconds = serializers.SerializerMethodField()
     time_to_resolve_after_assignment_seconds = serializers.SerializerMethodField()
 
+    department_name = serializers.ReadOnlyField(source='department.name')
+    
     class Meta:
         model = SupportTicket
         fields = [
             'id', 'ticket_id', 'user', 'user_details', 'category', 'category_name',
+            'department', 'department_name',
             'title', 'description', 'status', 'priority', 'assigned_to', 
             'assigned_to_details', 'facility', 'facility_name', 'space', 'space_name',
             'asset', 'asset_name', 'message_count', 'created_at', 'updated_at', 'assigned_at',
