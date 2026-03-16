@@ -13,7 +13,8 @@ import {
     Stack,
     Divider,
     Alert,
-    CircularProgress
+    CircularProgress,
+    IconButton
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { ArrowBack as ArrowBackIcon, Save as SaveIcon } from '@mui/icons-material';
@@ -78,66 +79,67 @@ export default function NewStaffingRequest() {
 
     if (fetchingCompanies) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress />
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+                <CircularProgress size={40} />
             </Box>
         );
     }
 
     return (
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 4 }}>
-                <Button
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => router.back()}
-                    variant="text"
-                >
-                    Back
-                </Button>
-                <Typography variant="h4" fontWeight={700}>
-                    New Staffing Request
-                </Typography>
+                <IconButton onClick={() => router.back()} sx={{ bgcolor: 'action.hover' }}>
+                    <ArrowBackIcon />
+                </IconButton>
+                <Box>
+                    <Typography variant="h4" fontWeight={800}>
+                        Create Request
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                        Initiate a new staffing requirement for a client
+                    </Typography>
+                </Box>
             </Stack>
 
-            {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+            {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
 
             <form onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
+                <Grid container spacing={4}>
                     <Grid size={{ xs: 12, md: 8 }}>
-                        <Card sx={{ borderRadius: 2 }}>
-                            <CardContent sx={{ p: 3 }}>
-                                <Typography variant="h6" fontWeight={600} gutterBottom>
-                                    Job Details
+                        <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                            <CardContent sx={{ p: 4 }}>
+                                <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                                    Requirement Details
                                 </Typography>
-                                <Stack spacing={3} sx={{ mt: 2 }}>
+                                <Stack spacing={3}>
                                     <TextField
                                         fullWidth
-                                        label="Job Title"
+                                        label="Requirement Title"
                                         name="title"
                                         value={formData.title}
                                         onChange={handleChange}
                                         required
-                                        placeholder="e.g. Senior Java Developer"
+                                        placeholder="e.g. Senior Backend Engineer (Node.js)"
                                     />
                                     <TextField
                                         fullWidth
-                                        label="Description"
+                                        label="Comprehensive Description"
                                         name="description"
                                         value={formData.description}
                                         onChange={handleChange}
                                         required
                                         multiline
-                                        rows={4}
-                                        placeholder="Provide a detailed description of the role and responsibilities..."
+                                        rows={6}
+                                        placeholder="Outline the role, responsibilities, and specific client environment..."
                                     />
                                     <TextField
                                         fullWidth
-                                        label="Required Skills"
+                                        label="Required Skills & Competencies"
                                         name="required_skills"
                                         value={formData.required_skills}
                                         onChange={handleChange}
                                         required
-                                        placeholder="e.g. Java, Spring Boot, Microservices (comma-separated)"
+                                        placeholder="e.g. React, TypeScript, AWS, Docker (comma-separated)"
                                     />
                                 </Stack>
                             </CardContent>
@@ -145,13 +147,13 @@ export default function NewStaffingRequest() {
                     </Grid>
 
                     <Grid size={{ xs: 12, md: 4 }}>
-                        <Stack spacing={3}>
-                            <Card sx={{ borderRadius: 2 }}>
-                                <CardContent sx={{ p: 3 }}>
-                                    <Typography variant="h6" fontWeight={600} gutterBottom>
-                                        Client & Status
+                        <Stack spacing={4}>
+                            <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                                <CardContent sx={{ p: 4 }}>
+                                    <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                                        Client & Priority
                                     </Typography>
-                                    <Stack spacing={3} sx={{ mt: 2 }}>
+                                    <Stack spacing={3}>
                                         <TextField
                                             select
                                             fullWidth
@@ -170,30 +172,30 @@ export default function NewStaffingRequest() {
                                         <TextField
                                             select
                                             fullWidth
-                                            label="Priority"
+                                            label="Urgency Level"
                                             name="priority"
                                             value={formData.priority}
                                             onChange={handleChange}
                                             required
                                         >
-                                            <MenuItem value="LOW">Low</MenuItem>
-                                            <MenuItem value="MEDIUM">Medium</MenuItem>
-                                            <MenuItem value="HIGH">High</MenuItem>
-                                            <MenuItem value="URGENT">Urgent</MenuItem>
+                                            <MenuItem value="LOW">Low Priority</MenuItem>
+                                            <MenuItem value="MEDIUM">Medium Priority</MenuItem>
+                                            <MenuItem value="HIGH">High Priority</MenuItem>
+                                            <MenuItem value="URGENT">Urgent / Critical</MenuItem>
                                         </TextField>
                                     </Stack>
                                 </CardContent>
                             </Card>
 
-                            <Card sx={{ borderRadius: 2 }}>
-                                <CardContent sx={{ p: 3 }}>
-                                    <Typography variant="h6" fontWeight={600} gutterBottom>
-                                        Requirements
+                            <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                                <CardContent sx={{ p: 4 }}>
+                                    <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                                        Fulfillment Criteria
                                     </Typography>
-                                    <Stack spacing={3} sx={{ mt: 2 }}>
+                                    <Stack spacing={3}>
                                         <TextField
                                             fullWidth
-                                            label="Experience (Years)"
+                                            label="Experience Range (Years)"
                                             name="experience_years"
                                             type="number"
                                             inputProps={{ step: 0.5, min: 0 }}
@@ -202,7 +204,7 @@ export default function NewStaffingRequest() {
                                         />
                                         <TextField
                                             fullWidth
-                                            label="No. of Positions"
+                                            label="Open Positions"
                                             name="number_of_positions"
                                             type="number"
                                             inputProps={{ min: 1 }}
@@ -212,39 +214,44 @@ export default function NewStaffingRequest() {
                                         />
                                         <TextField
                                             fullWidth
-                                            label="Proposed Rate ($/hr)"
+                                            label="Target Billing Rate"
                                             name="proposed_rate"
                                             type="number"
-                                            inputProps={{ min: 0 }}
+                                            inputProps={{ min: 0, step: "0.01" }}
                                             value={formData.proposed_rate}
                                             onChange={handleChange}
+                                            slotProps={{
+                                                input: {
+                                                    startAdornment: <Typography sx={{ mr: 1, color: 'text.secondary' }}>$</Typography>
+                                                }
+                                            }}
                                         />
                                     </Stack>
                                 </CardContent>
                             </Card>
 
-                            <Card sx={{ borderRadius: 2 }}>
-                                <CardContent sx={{ p: 3 }}>
-                                    <Typography variant="h6" fontWeight={600} gutterBottom>
-                                        Timeline
+                            <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                                <CardContent sx={{ p: 4 }}>
+                                    <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
+                                        Expected Timeline
                                     </Typography>
-                                    <Stack spacing={3} sx={{ mt: 2 }}>
+                                    <Stack spacing={3}>
                                         <TextField
                                             fullWidth
-                                            label="Start Date"
+                                            label="Target Onboarding Date"
                                             name="start_date"
                                             type="date"
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             value={formData.start_date}
                                             onChange={handleChange}
                                             required
                                         />
                                         <TextField
                                             fullWidth
-                                            label="End Date"
+                                            label="Projected Duration End"
                                             name="end_date"
                                             type="date"
-                                            InputLabelProps={{ shrink: true }}
+                                            slotProps={{ inputLabel: { shrink: true } }}
                                             value={formData.end_date}
                                             onChange={handleChange}
                                         />
@@ -259,9 +266,15 @@ export default function NewStaffingRequest() {
                                 type="submit"
                                 disabled={loading}
                                 startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-                                sx={{ borderRadius: 2, height: 50 }}
+                                sx={{ 
+                                    borderRadius: 3, 
+                                    py: 2, 
+                                    fontSize: '1.1rem', 
+                                    fontWeight: 700,
+                                    boxShadow: '0 8px 16px rgba(59, 130, 246, 0.25)'
+                                }}
                             >
-                                {loading ? 'Creating...' : 'Create Request'}
+                                {loading ? 'Submitting...' : 'Post Staffing Request'}
                             </Button>
                         </Stack>
                     </Grid>
