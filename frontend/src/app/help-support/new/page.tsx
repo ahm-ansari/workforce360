@@ -56,6 +56,7 @@ export default function NewSupportTicket() {
     const [deptEscalation, setDeptEscalation] = useState<any[]>([]);
     
     const [loading, setLoading] = useState(false);
+    const [loadingStaff, setLoadingStaff] = useState(false);
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
@@ -112,6 +113,32 @@ export default function NewSupportTicket() {
             setDeptEscalation([]);
         }
     }, [formData.department, escalationContacts]);
+
+    // When dept changes, fetch employees in that dept and match with staff users
+    useEffect(() => {
+        if (!formData.department) {
+            setFilteredStaff([]);
+            return;
+        }
+        setLoadingStaff(true);
+        axios.get(`employees/?department=${formData.department}`)
+            .then(res => {
+                const deptUsers = res.data
+                    .filter((emp: any) => emp.user_details)
+                    .map((emp: any) => ({
+                        id: emp.user_details.id,
+                        username: emp.user_details.username,
+                        first_name: emp.user_details.first_name,
+                        last_name: emp.user_details.last_name,
+                        role_details: emp.user_details.role_details,
+                        designation: emp.designation_details?.name || '',
+                        department_name: emp.department_details?.name || '',
+                    }));
+                setFilteredStaff(deptUsers);
+            })
+            .catch(() => setFilteredStaff([]))
+            .finally(() => setLoadingStaff(false));
+    }, [formData.department]);
 
     useEffect(() => {
         if (formData.facility) {
@@ -361,8 +388,8 @@ export default function NewSupportTicket() {
                                             value={formData.department || ''}
                                             onChange={(e) => {
                                                 const deptId = Number(e.target.value) || null;
+                                                // Reset assignee when dept changes
                                                 setFormData(p => ({ ...p, department: deptId, assigned_to: null }));
-                                                // Ideally filter staff by dept here if dept info is in staff object
                                             }}
                                             slotProps={{
                                                 input: {
@@ -377,17 +404,55 @@ export default function NewSupportTicket() {
                                         <TextField
                                             select
                                             fullWidth
-                                            label="Assign To Personnel"
+                                            label={
+                                                loadingStaff
+                                                    ? 'Loading personnel...'
+                                                    : formData.department
+                                                        ? `Assign To Personnel (${filteredStaff.length} available)`
+                                                        : 'Assign To Personnel'
+                                            }
                                             value={formData.assigned_to || ''}
                                             onChange={(e) => setFormData(p => ({ ...p, assigned_to: Number(e.target.value) || null }))}
+                                            disabled={!formData.department || loadingStaff}
+                                            helperText={!formData.department ? 'Select a department first to see available personnel' : ''}
                                             slotProps={{
                                                 input: {
-                                                    startAdornment: <InputAdornment position="start"><AssignIcon fontSize="small" /></InputAdornment>
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            {loadingStaff
+                                                                ? <CircularProgress size={16} />
+                                                                : <AssignIcon fontSize="small" />}
+                                                        </InputAdornment>
+                                                    )
                                                 }
                                             }}
                                         >
                                             <MenuItem value=""><em>Auto-Assign later</em></MenuItem>
-                                            {staff.map(s => <MenuItem key={s.id} value={s.id}>{s.username} ({s.role_details?.name})</MenuItem>)}
+                                            {filteredStaff.length === 0 && formData.department ? (
+                                                <MenuItem disabled>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        No personnel found in this department
+                                                    </Typography>
+                                                </MenuItem>
+                                            ) : (
+                                                filteredStaff.map(s => (
+                                                    <MenuItem key={s.id} value={s.id}>
+                                                        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ width: '100%' }}>
+                                                            <Avatar sx={{ width: 28, height: 28, fontSize: '0.7rem', bgcolor: '#6366f1' }}>
+                                                                {s.first_name?.[0] || s.username?.[0] || '?'}
+                                                            </Avatar>
+                                                            <Box>
+                                                                <Typography variant="body2" fontWeight={700}>
+                                                                    {s.first_name && s.last_name ? `${s.first_name} ${s.last_name}` : s.username}
+                                                                </Typography>
+                                                                <Typography variant="caption" color="text.secondary">
+                                                                    {s.designation || s.role_details?.name || 'Staff'}
+                                                                </Typography>
+                                                            </Box>
+                                                        </Stack>
+                                                    </MenuItem>
+                                                ))
+                                            )}
                                         </TextField>
 
                                         {/* Live Escalation Preview */}
