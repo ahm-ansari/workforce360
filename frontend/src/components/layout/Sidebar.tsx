@@ -66,6 +66,7 @@ const navSections: NavSection[] = [
                     { label: 'Support Dashboard', path: '/help-support', icon: <AssessmentIcon />, roles: ['admin', 'manager', 'hr', 'employee', 'finance', 'security', 'facility manager', 'technician', 'helpdesk operator', 'client user'] },
                     { label: 'New Ticket', path: '/help-support/new', icon: <PersonAddIcon />, roles: ['admin', 'manager', 'hr', 'employee', 'finance', 'security', 'facility manager', 'technician', 'helpdesk operator', 'client user'] },
                     { label: 'Performance Analytics', path: '/help-support/analytics', icon: <AutoGraphIcon />, roles: ['admin', 'manager', 'hr', 'facility manager', 'helpdesk operator'] },
+                    { label: 'Escalation Matrix', path: '/help-support/escalation', icon: <AssessmentIcon />, roles: ['admin', 'manager', 'hr', 'employee', 'finance', 'security', 'facility manager', 'technician', 'helpdesk operator', 'client user'] },
                 ]
             },
         ]
