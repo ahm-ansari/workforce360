@@ -17,7 +17,8 @@ import {
     Snackbar,
     Grid,
     Paper,
-    Divider
+    Divider,
+    Autocomplete
 } from '@mui/material';
 import {
     ArrowBack as ArrowBackIcon,
@@ -25,7 +26,10 @@ import {
     Subject as SubjectIcon,
     Category as CategoryIcon,
     PriorityHigh as PriorityIcon,
-    CloudUpload as UploadIcon
+    CloudUpload as UploadIcon,
+    Business as FacilityIcon,
+    LocationOn as SpaceIcon,
+    Settings as AssetIcon
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import axios from '@/lib/axios';
@@ -33,6 +37,10 @@ import axios from '@/lib/axios';
 export default function NewSupportTicket() {
     const router = useRouter();
     const [categories, setCategories] = useState<any[]>([]);
+    const [facilities, setFacilities] = useState<any[]>([]);
+    const [spaces, setSpaces] = useState<any[]>([]);
+    const [assets, setAssets] = useState<any[]>([]);
+    
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -42,26 +50,45 @@ export default function NewSupportTicket() {
         title: '',
         description: '',
         category: '',
-        priority: 'MEDIUM'
+        priority: 'MEDIUM',
+        facility: null as number | null,
+        space: null as number | null,
+        asset: null as number | null
     });
 
     useEffect(() => {
-        const fetchCategories = async () => {
+        const fetchInitialData = async () => {
             try {
-                const response = await axios.get('support/categories/');
-                setCategories(response.data);
-                if (response.data.length > 0) {
-                    setFormData(prev => ({ ...prev, category: response.data[0].id }));
+                const [catsRes, facilitiesRes] = await Promise.all([
+                    axios.get('support/categories/'),
+                    axios.get('cafm/facilities/')
+                ]);
+                
+                setCategories(catsRes.data);
+                setFacilities(facilitiesRes.data);
+                
+                if (catsRes.data.length > 0) {
+                    setFormData(prev => ({ ...prev, category: catsRes.data[0].id }));
                 }
             } catch (err) {
-                console.error('Error fetching categories:', err);
-                setError('Failed to load support categories');
+                console.error('Error fetching initial data:', err);
+                setError('Failed to load support components');
             } finally {
                 setFetching(false);
             }
         };
-        fetchCategories();
+        fetchInitialData();
     }, []);
+
+    useEffect(() => {
+        if (formData.facility) {
+            axios.get(`cafm/spaces/?facility=${formData.facility}`).then(res => setSpaces(res.data));
+            axios.get(`cafm/assets/?facility=${formData.facility}`).then(res => setAssets(res.data));
+        } else {
+            setSpaces([]);
+            setAssets([]);
+        }
+    }, [formData.facility]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -96,7 +123,7 @@ export default function NewSupportTicket() {
     }
 
     return (
-        <Box sx={{ p: 4, maxWidth: 900, mx: 'auto' }}>
+        <Box sx={{ p: 4, maxWidth: 1000, mx: 'auto' }}>
             <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 4 }}>
                 <IconButton onClick={() => router.back()} sx={{ bgcolor: 'white', border: '1px solid #e2e8f0' }}>
                     <ArrowBackIcon />
@@ -106,7 +133,7 @@ export default function NewSupportTicket() {
                         Create Support Ticket
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
-                        Describe your issue and our team will get back to you.
+                        Identify your facility and asset for faster resolution.
                     </Typography>
                 </Box>
             </Stack>
@@ -115,7 +142,7 @@ export default function NewSupportTicket() {
 
             <form onSubmit={handleSubmit}>
                 <Grid container spacing={4}>
-                    <Grid item xs={12} md={8}>
+                    <Grid size={{ xs: 12, md: 8 }}>
                         <Card sx={{ borderRadius: 4, boxShadow: '0 4px 25px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
                             <CardContent sx={{ p: 4 }}>
                                 <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
@@ -140,16 +167,90 @@ export default function NewSupportTicket() {
                                             }
                                         }}
                                     />
+                                    
+                                    <Divider sx={{ my: 1 }}>
+                                        <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 700 }}>LOCATION & ASSET IDENTIFICATION</Typography>
+                                    </Divider>
+
+                                    <Grid container spacing={2}>
+                                        <Grid size={{ xs: 12, sm: 6 }}>
+                                            <TextField
+                                                select
+                                                fullWidth
+                                                label="Facility"
+                                                value={formData.facility || ''}
+                                                onChange={(e) => setFormData(p => ({ ...p, facility: Number(e.target.value) || null }))}
+                                                slotProps={{
+                                                    input: {
+                                                        startAdornment: <InputAdornment position="start"><FacilityIcon fontSize="small" /></InputAdornment>
+                                                    }
+                                                }}
+                                            >
+                                                <MenuItem value=""><em>None</em></MenuItem>
+                                                {facilities.map(f => <MenuItem key={f.id} value={f.id}>{f.name}</MenuItem>)}
+                                            </TextField>
+                                        </Grid>
+                                        <Grid size={{ xs: 12, sm: 6 }}>
+                                            <TextField
+                                                select
+                                                fullWidth
+                                                label="Space / Room"
+                                                value={formData.space || ''}
+                                                onChange={(e) => setFormData(p => ({ ...p, space: Number(e.target.value) || null }))}
+                                                disabled={!formData.facility}
+                                                slotProps={{
+                                                    input: {
+                                                        startAdornment: <InputAdornment position="start"><SpaceIcon fontSize="small" /></InputAdornment>
+                                                    }
+                                                }}
+                                            >
+                                                <MenuItem value=""><em>None</em></MenuItem>
+                                                {spaces.map(s => <MenuItem key={s.id} value={s.id}>{s.name} ({s.space_type})</MenuItem>)}
+                                            </TextField>
+                                        </Grid>
+                                        <Grid size={{ xs: 12 }}>
+                                            <Autocomplete
+                                                options={assets}
+                                                getOptionLabel={(option) => `${option.name} (${option.asset_id})`}
+                                                value={assets.find(a => a.id === formData.asset) || null}
+                                                onChange={(_, newValue) => setFormData(p => ({ ...p, asset: newValue?.id || null }))}
+                                                disabled={!formData.facility}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Related Asset"
+                                                        placeholder="Select the equipment causing trouble"
+                                                        slotProps={{
+                                                            input: {
+                                                                ...params.InputProps,
+                                                                startAdornment: (
+                                                                    <>
+                                                                        <InputAdornment position="start"><AssetIcon fontSize="small" /></InputAdornment>
+                                                                        {params.InputProps.startAdornment}
+                                                                    </>
+                                                                )
+                                                            }
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        </Grid>
+                                    </Grid>
+
+                                    <Divider sx={{ my: 1 }}>
+                                        <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 700 }}>ISSUE DESCRIPTION</Typography>
+                                    </Divider>
+
                                     <TextField
                                         fullWidth
                                         multiline
-                                        rows={8}
+                                        rows={6}
                                         label="Detailed Description"
                                         name="description"
                                         value={formData.description}
                                         onChange={handleChange}
                                         required
-                                        placeholder="Provide as much detail as possible. Include steps to reproduce if it's a bug."
+                                        placeholder="Provide as much detail as possible. Include codes shown on asset displays if any."
                                     />
                                     
                                     <Paper 
@@ -166,10 +267,10 @@ export default function NewSupportTicket() {
                                     >
                                         <UploadIcon sx={{ fontSize: 40, color: '#94a3b8', mb: 1 }} />
                                         <Typography variant="body2" fontWeight={600} color="#64748b">
-                                            Attach screenshots or logs (Optional)
+                                            Attach photos of the issue (Optional)
                                         </Typography>
                                         <Typography variant="caption" color="text.disabled">
-                                            Drag & drop files here or click to browse
+                                            Max file size 5MB • JPG, PNG, PDF
                                         </Typography>
                                     </Paper>
                                 </Stack>
@@ -177,18 +278,18 @@ export default function NewSupportTicket() {
                         </Card>
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <Stack spacing={4}>
                             <Card sx={{ borderRadius: 4, boxShadow: '0 4px 25px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
                                 <CardContent sx={{ p: 4 }}>
                                     <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
-                                        Categorization
+                                        Service Level
                                     </Typography>
                                     <Stack spacing={3}>
                                         <TextField
                                             select
                                             fullWidth
-                                            label="Department / Category"
+                                            label="Support Category"
                                             name="category"
                                             value={formData.category}
                                             onChange={handleChange}
@@ -211,17 +312,17 @@ export default function NewSupportTicket() {
                                             required
                                         >
                                             <MenuItem value="LOW">Low - General Inquiry</MenuItem>
-                                            <MenuItem value="MEDIUM">Medium - Normal Issue</MenuItem>
-                                            <MenuItem value="HIGH">High - Urgent Problem</MenuItem>
-                                            <MenuItem value="CRITICAL">Critical - System Down</MenuItem>
+                                            <MenuItem value="MEDIUM">Medium - Functional Issue</MenuItem>
+                                            <MenuItem value="HIGH">High - Critical Failure</MenuItem>
+                                            <MenuItem value="CRITICAL">Critical - Safety/Security</MenuItem>
                                         </TextField>
 
                                         <Box sx={{ p: 2, bgcolor: '#fef2f2', borderRadius: 3, border: '1px solid #fee2e2' }}>
                                             <Typography variant="caption" fontWeight={700} color="#ef4444" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                <PriorityIcon fontSize="inherit" /> SLA WARNING
+                                                <PriorityIcon fontSize="inherit" /> AUTOMATIC ESCALATION
                                             </Typography>
                                             <Typography variant="caption" color="#991b1b" display="block" sx={{ mt: 0.5 }}>
-                                                Medium priority tickets are typically resolved within 24-48 business hours.
+                                                Critical tickets trigger immediate SMS alerts to the engineering on-call team.
                                             </Typography>
                                         </Box>
                                     </Stack>
@@ -244,7 +345,7 @@ export default function NewSupportTicket() {
                                     boxShadow: '0 8px 16px rgba(59, 130, 246, 0.25)'
                                 }}
                             >
-                                {loading ? 'Submitting...' : 'Submit Support Ticket'}
+                                {loading ? 'Creating Request...' : 'Submit Support Ticket'}
                             </Button>
                         </Stack>
                     </Grid>
