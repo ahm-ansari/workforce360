@@ -23,9 +23,11 @@ import {
     Description as DescriptionIcon
 } from '@mui/icons-material';
 import axios from '@/lib/axios';
+import { useRouter } from 'next/navigation';
 import { CircularProgress } from '@mui/material';
 
 export default function StaffingContracts() {
+    const router = useRouter();
     const [contracts, setContracts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -58,6 +60,7 @@ export default function StaffingContracts() {
                 <Button
                     variant="contained"
                     startIcon={<AddIcon />}
+                    onClick={() => router.push('/outsourcing/contracts/new')}
                     sx={{ borderRadius: 2, px: 3 }}
                 >
                     New Contract
