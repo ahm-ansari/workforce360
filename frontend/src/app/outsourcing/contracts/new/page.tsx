@@ -101,7 +101,7 @@ export default function NewContract() {
 
             <form onSubmit={handleSubmit}>
                 <Grid container spacing={4}>
-                    <Grid item xs={12} md={8}>
+                    <Grid size={{ xs: 12, md: 8 }}>
                         <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
                             <CardContent sx={{ p: 4 }}>
                                 <Typography variant="h6" fontWeight={700} gutterBottom sx={{ mb: 3 }}>
@@ -157,7 +157,7 @@ export default function NewContract() {
                         </Card>
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <Stack spacing={4}>
                             <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
                                 <CardContent sx={{ p: 4 }}>
@@ -224,10 +224,10 @@ export default function NewContract() {
                                 type="submit"
                                 disabled={loading}
                                 startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-                                sx={{ 
-                                    borderRadius: 3, 
-                                    py: 2, 
-                                    fontSize: '1.1rem', 
+                                sx={{
+                                    borderRadius: 3,
+                                    py: 2,
+                                    fontSize: '1.1rem',
                                     fontWeight: 700,
                                     boxShadow: '0 8px 16px rgba(59, 130, 246, 0.25)'
                                 }}
