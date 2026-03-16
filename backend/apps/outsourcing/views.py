@@ -20,11 +20,36 @@ class StaffingRequestViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
+        from django.db.models import Count, Sum
+        from django.db.models.functions import TruncMonth
+        from django.utils import timezone
+        import datetime
+
+        # Get stats for the last 6 months
+        six_months_ago = timezone.now() - datetime.timedelta(days=180)
+        
+        trends = StaffingRequest.objects.filter(created_at__gte=six_months_ago) \
+            .annotate(month=TruncMonth('created_at')) \
+            .values('month') \
+            .annotate(requests=Count('id')) \
+            .order_by('month')
+
+        client_breakdown = OutsourcedStaff.objects.values('client__name') \
+            .annotate(count=Count('id')) \
+            .order_by('-count')[:5]
+
+        placement_status = OutsourcedStaff.objects.values('status') \
+            .annotate(count=Count('id'))
+
         return Response({
             'active_placements': OutsourcedStaff.objects.filter(status='ACTIVE').count(),
             'open_requests': StaffingRequest.objects.filter(status='OPEN').count(),
             'active_contracts': StaffingContract.objects.filter(status='ACTIVE').count(),
             'pending_timesheets': StaffingTimesheet.objects.filter(status='SUBMITTED').count(),
+            'total_revenue': StaffingTimesheet.objects.filter(status='INVOICED').aggregate(total=Sum('billable_amount'))['total'] or 0,
+            'trends': trends,
+            'client_breakdown': client_breakdown,
+            'placement_status': placement_status
         })
 
 class OutsourcedStaffViewSet(viewsets.ModelViewSet):
