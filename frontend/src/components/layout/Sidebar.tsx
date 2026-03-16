@@ -22,6 +22,7 @@ import HandshakeIcon from '@mui/icons-material/Handshake';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 import CampaignIcon from '@mui/icons-material/Campaign';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -51,6 +52,22 @@ const navSections: NavSection[] = [
         items: [
             { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon />, roles: ['admin', 'manager', 'hr', 'employee', 'finance', 'security'] },
             { label: 'ML Analysis', path: '/analysis', icon: <AutoGraphIcon />, roles: ['admin', 'manager', 'hr'] },
+        ]
+    },
+    {
+        title: 'SUPPORT & HELP DESK',
+        items: [
+            { 
+                label: 'Help Desk', 
+                path: '/help-support', 
+                icon: <ContactSupportIcon />, 
+                roles: ['admin', 'manager', 'hr', 'employee', 'finance', 'security', 'facility manager', 'technician', 'helpdesk operator', 'client user'],
+                children: [
+                    { label: 'Support Dashboard', path: '/help-support', icon: <AssessmentIcon />, roles: ['admin', 'manager', 'hr', 'employee', 'finance', 'security', 'facility manager', 'technician', 'helpdesk operator', 'client user'] },
+                    { label: 'New Ticket', path: '/help-support/new', icon: <PersonAddIcon />, roles: ['admin', 'manager', 'hr', 'employee', 'finance', 'security', 'facility manager', 'technician', 'helpdesk operator', 'client user'] },
+                    { label: 'Performance Analytics', path: '/help-support/analytics', icon: <AutoGraphIcon />, roles: ['admin', 'manager', 'hr', 'facility manager', 'helpdesk operator'] },
+                ]
+            },
         ]
     },
     {
