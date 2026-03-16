@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'apps.operations',
     'apps.cafm',
     'apps.analysis',
+    'apps.support',
 ]
 
 MIDDLEWARE = [
