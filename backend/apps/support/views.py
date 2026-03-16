@@ -2,10 +2,11 @@ from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import TicketCategory, SupportTicket, TicketMessage
+from .models import TicketCategory, SupportTicket, TicketMessage, EscalationMatrix
 from .serializers import (
     TicketCategorySerializer, SupportTicketSerializer, 
-    SupportTicketDetailSerializer, TicketMessageSerializer
+    SupportTicketDetailSerializer, TicketMessageSerializer,
+    EscalationMatrixSerializer
 )
 from django.utils import timezone
 
@@ -13,6 +14,13 @@ class TicketCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TicketCategory.objects.all()
     serializer_class = TicketCategorySerializer
     permission_classes = [permissions.IsAuthenticated]
+
+class EscalationMatrixViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = EscalationMatrix.objects.all()
+    serializer_class = EscalationMatrixSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['department']
 
 class SupportTicketViewSet(viewsets.ModelViewSet):
     queryset = SupportTicket.objects.all()
